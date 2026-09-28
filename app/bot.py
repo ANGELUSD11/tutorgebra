@@ -2,6 +2,7 @@ import asyncio
 import math
 import random
 import logging
+import io
 import traceback
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
@@ -43,7 +44,10 @@ def play_audio(cmd):
     filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios", f"{safe_name}.mp3")
     if os.path.exists(filepath):
         try:
-            pygame.mixer.music.load(filepath)
+            # Leer el archivo a la memoria RAM para evitar que Pygame lo bloquee en Windows
+            with open(filepath, 'rb') as f:
+                audio_data = io.BytesIO(f.read())
+            pygame.mixer.music.load(audio_data)
             pygame.mixer.music.play()
         except Exception as e:
             logger.error(f"Failed to play audio: {e}")
@@ -229,9 +233,28 @@ async def run_geogebra_session(data):
             await browser.close()
     finally:
         try:
+            # Unload the file explicitly to release the Windows file lock
+            try:
+                pygame.mixer.music.unload()
+            except AttributeError:
+                pass # For older pygame versions
+                
             pygame.mixer.quit()
-            import shutil
-            shutil.rmtree(os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios"), ignore_errors=True)
-            logger.info("Final cleanup guaranteed: Audios deleted from disk.")
+            
+            audio_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios")
+            if os.path.exists(audio_dir):
+                import shutil
+                import time
+                
+                # Windows might take a moment to release the file handles
+                for _ in range(5):
+                    try:
+                        shutil.rmtree(audio_dir)
+                        logger.info("Final cleanup guaranteed: Audios deleted from disk.")
+                        break
+                    except PermissionError:
+                        time.sleep(0.5)
+                else:
+                    logger.warning("Warning: Could not delete audios folder due to lingering file locks.")
         except Exception as e:
             logger.warning(f"Could not clean up audios: {e}")
