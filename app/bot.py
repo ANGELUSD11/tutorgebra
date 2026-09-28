@@ -12,7 +12,7 @@ from playwright.async_api import async_playwright, TimeoutError
 logger = logging.getLogger('TutorGebraBot')
 
 def pregenerate_audio(steps, lang="en"):
-    logger.info("Sintetizando la voz del profesor con gTTS...")
+    logger.info("Synthesizing teacher voice with gTTS...")
     os.makedirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios"), exist_ok=True)
     pygame.mixer.init()
     for step in steps:
@@ -25,7 +25,7 @@ def pregenerate_audio(steps, lang="en"):
         if not os.path.exists(filepath):
             tts = gTTS(text=text, lang=lang)
             tts.save(filepath)
-    logger.info("Audios listos.")
+    logger.info("Audios ready.")
 
 def play_audio(cmd):
     safe_name = "".join(c if c.isalnum() else "_" for c in cmd)[:50]
@@ -35,7 +35,7 @@ def play_audio(cmd):
             pygame.mixer.music.load(filepath)
             pygame.mixer.music.play()
         except Exception as e:
-            logger.error(f"Fallo al reproducir audio: {e}")
+            logger.error(f"Failed to play audio: {e}")
 
 class HumanSimulator:
     def __init__(self, page):
@@ -145,84 +145,85 @@ async def run_geogebra_session(data):
     lang = data.get("language", "en")
     pregenerate_audio(steps, lang)
 
-    async with async_playwright() as p:
-        logger.info("Iniciando navegador Chromium...")
-        browser = await p.chromium.launch(headless=False, slow_mo=30, args=['--start-maximized'])
-        
-        context = await browser.new_context(
-            no_viewport=True
-        )
-        page = await context.new_page()
-        
-        page.on("console", lambda msg: logger.warning(f"Consola GeoGebra: {msg.text}") if msg.type == "error" else None)
-        
-        sim = HumanSimulator(page)
-        
-        logger.info("Abriendo GeoGebra Classic...")
-        try:
-            await page.bring_to_front()
-            await page.goto("https://www.geogebra.org/classic", timeout=60000)
-            await page.wait_for_load_state("networkidle")
-        except TimeoutError:
-            logger.warning("Red lenta. Continuando...")
+    try:
+        async with async_playwright() as p:
+            logger.info("Starting Chromium browser...")
+            browser = await p.chromium.launch(headless=False, slow_mo=30, args=['--start-maximized'])
             
-        logger.info("Esperando estabilizacion...")
-        await asyncio.sleep(6)
-        await sim.init_mouse()
-
-        logger.info("Buscando barra de entrada...")
-        try:
-            await page.wait_for_selector(".avInput", timeout=5000)
-            elements = await page.query_selector_all(".avInput")
-            if elements:
-                box = await elements[0].bounding_box()
-                if box:
-                    await sim.move_mouse(box['x'] + 50, box['y'] + box['height'] / 2)
-                    await sim.click()
-        except Exception:
-            await sim.move_mouse(80, 80)
-            await sim.click()
-            await sim.cognitive_pause(0.5, 1.0)
-            await sim.click()
-        
-        logger.info(f"Comenzando {len(steps)} comandos...")
-        for i, step in enumerate(steps):
-            cmd = step["command"]
-            speech = step["speech"]
-            logger.info(f"[{i+1}/{len(steps)}] Comando: {cmd}")
+            context = await browser.new_context(
+                no_viewport=True
+            )
+            page = await context.new_page()
             
-            if speech:
-                play_audio(cmd)
+            page.on("console", lambda msg: logger.warning(f"GeoGebra Console: {msg.text}") if msg.type == "error" else None)
             
-            if random.random() < 0.3:
-                idle_x = sim.current_x + random.randint(-100, 100)
-                idle_y = sim.current_y + random.randint(-100, 100)
-                await sim.move_mouse(max(10, min(1300, idle_x)), max(10, min(750, idle_y)))
+            sim = HumanSimulator(page)
             
-            await sim.cognitive_pause(0.5, 1.5)
-            await sim.type_text(cmd)
-            
-            while pygame.mixer.music.get_busy():
-                await asyncio.sleep(0.5)
+            logger.info("Opening GeoGebra Classic...")
+            try:
+                await page.bring_to_front()
+                await page.goto("https://www.geogebra.org/classic", timeout=60000)
+                await page.wait_for_load_state("networkidle")
+            except TimeoutError:
+                logger.warning("Slow network. Continuing...")
                 
-            await asyncio.sleep(1.0)
+            logger.info("Waiting for stabilization...")
+            await asyncio.sleep(6)
+            await sim.init_mouse()
 
-        logger.info("Leccion terminada.")
-        
+            logger.info("Searching for input bar...")
+            try:
+                await page.wait_for_selector(".avInput", timeout=5000)
+                elements = await page.query_selector_all(".avInput")
+                if elements:
+                    box = await elements[0].bounding_box()
+                    if box:
+                        await sim.move_mouse(box['x'] + 50, box['y'] + box['height'] / 2)
+                        await sim.click()
+            except Exception:
+                await sim.move_mouse(80, 80)
+                await sim.click()
+                await sim.cognitive_pause(0.5, 1.0)
+                await sim.click()
+            
+            logger.info(f"Starting {len(steps)} commands...")
+            for i, step in enumerate(steps):
+                cmd = step["command"]
+                speech = step["speech"]
+                logger.info(f"[{i+1}/{len(steps)}] Command: {cmd}")
+                
+                if speech:
+                    play_audio(cmd)
+                
+                if random.random() < 0.3:
+                    idle_x = sim.current_x + random.randint(-100, 100)
+                    idle_y = sim.current_y + random.randint(-100, 100)
+                    await sim.move_mouse(max(10, min(1300, idle_x)), max(10, min(750, idle_y)))
+                
+                await sim.cognitive_pause(0.5, 1.5)
+                await sim.type_text(cmd)
+                
+                while pygame.mixer.music.get_busy():
+                    await asyncio.sleep(0.5)
+                    
+                await asyncio.sleep(1.0)
+
+            logger.info("Lesson finished.")
+            
+            await sim.cognitive_pause(1.0, 3.0)
+            await sim.move_mouse(600, 300)
+            
+            # Dejamos el navegador abierto unos minutos para que el estudiante revise
+            await asyncio.sleep(300)
+            await browser.close()
+    finally:
         try:
             pygame.mixer.quit()
             import shutil
             shutil.rmtree(os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios"), ignore_errors=True)
-            logger.info("Carpeta de audios limpiada.")
+            logger.info("Final cleanup guaranteed: Audios deleted from disk.")
         except Exception as e:
-            logger.warning(f"No se pudieron limpiar los audios: {e}")
-        
-        await sim.cognitive_pause(1.0, 3.0)
-        await sim.move_mouse(600, 300)
-        
-        # Dejamos el navegador abierto unos minutos para que el estudiante revise
-        await asyncio.sleep(300)
-        await browser.close()
+            logger.warning(f"Could not clean up audios: {e}")
 
 
 

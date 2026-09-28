@@ -46,7 +46,7 @@ async def run_exercise(req: ExerciseRequest):
         return {"status": "success", "steps": data.get("steps", [])}
     except Exception as e:
         bot_status = {"state": "error", "message": str(e)}
-        logger.error(f"Error procesando solicitud: {e}")
+        logger.error(f"Error processing request: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 async def run_bot_safe(data):
@@ -57,10 +57,10 @@ async def run_bot_safe(data):
     except Exception as e:
         error_msg = str(e)
         if "TargetClosedError" in error_msg or "Target page, context or browser has been closed" in error_msg:
-            logger.warning("El usuario cerro la ventana del navegador prematuramente.")
+            logger.warning("User closed the browser window prematurely.")
             bot_status = {"state": "error", "message": "Browser window was closed manually before the lesson finished."}
         else:
-            logger.error("Error critico en la ejecucion del bot:")
+            logger.error("Critical error in bot execution:")
             logger.error(traceback.format_exc())
             bot_status = {"state": "error", "message": "Unexpected error during the lesson."}
 
@@ -74,7 +74,7 @@ async def serve_ui():
         return f.read()
 
 if __name__ == "__main__":
-    logger.info("Iniciando TutorGebra UI en http://localhost:8000")
+    logger.info("Starting TutorGebra UI at http://localhost:8000")
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
