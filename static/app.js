@@ -1,4 +1,4 @@
-﻿const { createApp, ref } = Vue;
+const { createApp, ref } = Vue;
 
 createApp({
     setup() {
@@ -11,6 +11,24 @@ createApp({
         const botMessage = ref('');
         let pollInterval = null;
         const steps = ref([]);
+
+        // Dark Mode Logic
+        const isDark = ref(localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
+
+        if (isDark.value) {
+            document.documentElement.classList.add('dark');
+        }
+
+        const toggleDarkMode = () => {
+            isDark.value = !isDark.value;
+            if (isDark.value) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+        };
 
         const startTutor = async () => {
             loading.value = true;
@@ -59,6 +77,6 @@ createApp({
             }, 1000);
         };
         
-        return { botState, botMessage, apiKey, prompt, loading, error, success, steps, startTutor }
+        return { isDark, toggleDarkMode, botState, botMessage, apiKey, prompt, loading, error, success, steps, startTutor }
     }
 }).mount('#app');

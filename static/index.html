@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -6,71 +6,83 @@
     <title>TutorGebra AI</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased min-h-screen">
-    <div id="app" class="max-w-3xl mx-auto px-4 py-12">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased min-h-screen transition-colors duration-200">
+    <div id="app" class="max-w-3xl mx-auto px-4 py-12 relative">
+        
+        <!-- Dark Mode Toggle -->
+        <button @click="toggleDarkMode" class="absolute top-4 right-4 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none">
+            <i class="fa-solid fa-moon text-2xl" v-if="!isDark"></i>
+            <i class="fa-solid fa-sun text-2xl" v-else></i>
+        </button>
+
         <div class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-indigo-600 mb-2"><i class="fa-solid fa-shapes mr-2"></i>TutorGebra AI</h1>
-            <p class="text-gray-500">Your automated interactive geometry tutor.</p>
+            <h1 class="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2"><i class="fa-solid fa-shapes mr-2"></i>TutorGebra AI</h1>
+            <p class="text-gray-500 dark:text-gray-400">Your automated interactive geometry tutor.</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 transition-colors duration-200">
             
             <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Gemini API Key</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Gemini API Key</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-key text-gray-400"></i>
+                        <i class="fa-solid fa-key text-gray-400 dark:text-gray-500"></i>
                     </div>
                     <input type="password" v-model="apiKey" placeholder="AIzaSy..." 
-                           class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                           class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                 </div>
-                <p class="text-xs text-gray-400 mt-1">Required to interpret your math exercises with Gemini 2.5 Flash.</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Required to interpret your math exercises with Gemini 2.5 Flash.</p>
             </div>
 
             <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">What do you want to learn to draw or calculate?</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">What do you want to learn to draw or calculate?</label>
                 <textarea v-model="prompt" rows="4" placeholder="Example: Draw a right triangle, calculate its hypotenuse using the Pythagorean theorem, and draw a circumscribed circle." 
-                          class="w-full p-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"></textarea>
+                          class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"></textarea>
             </div>
 
             <button @click="startTutor" :disabled="loading || !apiKey || !prompt" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold py-4 px-6 rounded-xl shadow-md transition-all flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
                 <i v-if="loading" class="fa-solid fa-circle-notch fa-spin"></i>
                 <i v-else class="fa-solid fa-chalkboard-user"></i>
                 {{ loading ? 'Thinking and launching GeoGebra...' : 'Summon the Tutor' }}
             </button>
             
-            <div v-if="error" class="mt-4 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm">
+            <div v-if="error" class="mt-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800/50 text-sm">
                 <i class="fa-solid fa-triangle-exclamation mr-2"></i> {{ error }}
             </div>
             
-            <div v-if="botState === 'running'" class="mt-4 p-4 bg-blue-50 text-blue-700 rounded-lg border border-blue-200 text-sm">
+            <div v-if="botState === 'running'" class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-lg border border-blue-200 dark:border-blue-800/50 text-sm">
                 <i class="fa-solid fa-spinner fa-spin mr-2"></i> {{ botMessage }}
             </div>
             
-            <div v-if="botState === 'finished'" class="mt-4 p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm">
+            <div v-if="botState === 'finished'" class="mt-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg border border-green-200 dark:border-green-800/50 text-sm">
                 <i class="fa-solid fa-check-circle mr-2"></i> {{ botMessage }}
             </div>
             
-            <div v-if="botState === 'error'" class="mt-4 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm">
+            <div v-if="botState === 'error'" class="mt-4 p-4 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800/50 text-sm">
                 <i class="fa-solid fa-triangle-exclamation mr-2"></i> {{ botMessage }}
             </div>
-            <div v-if="success" class="mt-4 p-4 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm">
+            <div v-if="success" class="mt-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg border border-green-200 dark:border-green-800/50 text-sm">
                 <i class="fa-solid fa-check-circle mr-2"></i> Ready! Check the browser window that just opened.
             </div>
             
             <div v-if="steps.length > 0" class="mt-8">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Generated Lesson Plan</h3>
+                <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200 mb-4 border-b dark:border-gray-700 pb-2">Generated Lesson Plan</h3>
                 <ul class="space-y-4">
-                    <li v-for="(step, idx) in steps" :key="idx" class="bg-gray-50 p-4 rounded-lg border border-gray-100 flex gap-4">
-                        <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold">
+                    <li v-for="(step, idx) in steps" :key="idx" class="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-100 dark:border-gray-600 flex gap-4 transition-colors duration-200">
+                        <div class="flex-shrink-0 w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full flex items-center justify-center font-bold">
                             {{ idx + 1 }}
                         </div>
                         <div>
-                            <code class="text-sm font-mono text-pink-600 bg-pink-50 px-2 py-1 rounded">{{ step.command }}</code>
-                            <p class="text-gray-600 text-sm mt-2 italic">"{{ step.speech }}"</p>
+                            <code class="text-sm font-mono text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-900/30 px-2 py-1 rounded">{{ step.command }}</code>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2 italic">"{{ step.speech }}"</p>
                         </div>
                     </li>
                 </ul>
