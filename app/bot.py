@@ -14,7 +14,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 import concurrent.futures
 
-def _generate_single_audio(step, lang):
+def _generate_single_audio(step, lang, tld):
     cmd = step["command"]
     text = step["speech"]
     if not text:
@@ -23,18 +23,18 @@ def _generate_single_audio(step, lang):
     filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios", f"{safe_name}.mp3")
     if not os.path.exists(filepath):
         try:
-            tts = gTTS(text=text, lang=lang)
+            tts = gTTS(text=text, lang=lang, tld=tld)
             tts.save(filepath)
         except Exception as e:
             logger.error(f"Error generating audio for '{cmd}': {e}")
 
-def pregenerate_audio(steps, lang="en"):
-    logger.info("Synthesizing teacher voice with gTTS in parallel...")
+def pregenerate_audio(steps, lang="en", tld="com"):
+    logger.info(f"Synthesizing teacher voice with gTTS in parallel ({lang}-{tld})...")
     os.makedirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios"), exist_ok=True)
     pygame.mixer.init()
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=min(10, max(1, len(steps)))) as executor:
-        futures = [executor.submit(_generate_single_audio, step, lang) for step in steps]
+        futures = [executor.submit(_generate_single_audio, step, lang, tld) for step in steps]
         concurrent.futures.wait(futures)
         
     logger.info("Audios ready.")
@@ -157,8 +157,17 @@ class HumanSimulator:
 
 async def run_geogebra_session(data):
     steps = data.get("steps", [])
+    
     lang = data.get("language", "en")
-    pregenerate_audio(steps, lang)
+    tld = "com"
+    voice_pref = data.get("voice", "auto")
+    if voice_pref != "auto":
+        parts = voice_pref.split('-')
+        if len(parts) == 2:
+            lang = parts[0]
+            tld = parts[1]
+            
+    pregenerate_audio(steps, lang, tld)
 
     try:
         async with async_playwright() as p:
@@ -225,6 +234,28 @@ async def run_geogebra_session(data):
 
             logger.info("Lesson finished.")
             
+            # Limpiar audios inmediatamente al terminar la lección (antes de la pausa de 5 minutos)
+            try:
+                try:
+                    pygame.mixer.music.unload()
+                except AttributeError:
+                    pass
+                pygame.mixer.quit()
+                
+                audio_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios")
+                if os.path.exists(audio_dir):
+                    import shutil
+                    import time
+                    for _ in range(5):
+                        try:
+                            shutil.rmtree(audio_dir)
+                            logger.info("Final cleanup guaranteed: Audios deleted from disk.")
+                            break
+                        except PermissionError:
+                            time.sleep(0.5)
+            except Exception as e:
+                logger.warning(f"Could not clean up audios: {e}")
+            
             await sim.cognitive_pause(1.0, 3.0)
             await sim.move_mouse(600, 300)
             
@@ -232,29 +263,17 @@ async def run_geogebra_session(data):
             await asyncio.sleep(300)
             await browser.close()
     finally:
+        # Fallback cleanup just in case execution was aborted early
         try:
-            # Unload the file explicitly to release the Windows file lock
             try:
                 pygame.mixer.music.unload()
             except AttributeError:
-                pass # For older pygame versions
-                
+                pass
             pygame.mixer.quit()
             
             audio_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios")
             if os.path.exists(audio_dir):
                 import shutil
-                import time
-                
-                # Windows might take a moment to release the file handles
-                for _ in range(5):
-                    try:
-                        shutil.rmtree(audio_dir)
-                        logger.info("Final cleanup guaranteed: Audios deleted from disk.")
-                        break
-                    except PermissionError:
-                        time.sleep(0.5)
-                else:
-                    logger.warning("Warning: Could not delete audios folder due to lingering file locks.")
-        except Exception as e:
-            logger.warning(f"Could not clean up audios: {e}")
+                shutil.rmtree(audio_dir, ignore_errors=True)
+        except Exception:
+            pass

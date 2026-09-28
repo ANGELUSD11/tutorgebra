@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import logging
 import traceback
 from fastapi import FastAPI, Request, HTTPException
@@ -27,6 +27,7 @@ app.mount("/static", StaticFiles(directory=static_path), name="static")
 class ExerciseRequest(BaseModel):
     prompt: str
     api_key: str
+    voice: str = "auto"
 
 bot_status = {"state": "idle", "message": ""}
 
@@ -39,6 +40,7 @@ async def run_exercise(req: ExerciseRequest):
     try:
         bot_status = {"state": "generating", "message": "Generating lesson plan..."}
         data = generate_geogebra_script(req.prompt)
+        data["voice"] = req.voice
         
         bot_status = {"state": "running", "message": "Teaching lesson in GeoGebra..."}
         asyncio.create_task(run_bot_safe(data))

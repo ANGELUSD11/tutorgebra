@@ -4,6 +4,7 @@ createApp({
     setup() {
         const apiKey = ref('');
         const prompt = ref('');
+        const ttsVoice = ref('auto');
         const loading = ref(false);
         const error = ref('');
         const success = ref(false);
@@ -42,7 +43,8 @@ createApp({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         prompt: prompt.value,
-                        api_key: apiKey.value
+                        api_key: apiKey.value,
+                        voice: ttsVoice.value
                     })
                 });
                 
@@ -77,6 +79,6 @@ createApp({
             }, 1000);
         };
         
-        return { isDark, toggleDarkMode, botState, botMessage, apiKey, prompt, loading, error, success, steps, startTutor }
+        return { isDark, toggleDarkMode, botState, botMessage, apiKey, prompt, ttsVoice, loading, error, success, steps, startTutor }
     }
 }).mount('#app');
