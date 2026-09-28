@@ -3,4 +3,4 @@ uvicorn==0.54.0
 pygame==2.6.1
 gTTS==2.5.4
 playwright==1.63.0
-google-genai==2.25.0
+google-genai==2.25.0    
