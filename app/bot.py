@@ -1,4 +1,4 @@
-﻿import asyncio
+import asyncio
 import math
 import random
 import logging
@@ -11,20 +11,31 @@ from playwright.async_api import async_playwright, TimeoutError
 
 logger = logging.getLogger('TutorGebraBot')
 
-def pregenerate_audio(steps, lang="en"):
-    logger.info("Synthesizing teacher voice with gTTS...")
-    os.makedirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios"), exist_ok=True)
-    pygame.mixer.init()
-    for step in steps:
-        cmd = step["command"]
-        text = step["speech"]
-        if not text:
-            continue
-        safe_name = "".join(c if c.isalnum() else "_" for c in cmd)[:50]
-        filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios", f"{safe_name}.mp3")
-        if not os.path.exists(filepath):
+import concurrent.futures
+
+def _generate_single_audio(step, lang):
+    cmd = step["command"]
+    text = step["speech"]
+    if not text:
+        return
+    safe_name = "".join(c if c.isalnum() else "_" for c in cmd)[:50]
+    filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios", f"{safe_name}.mp3")
+    if not os.path.exists(filepath):
+        try:
             tts = gTTS(text=text, lang=lang)
             tts.save(filepath)
+        except Exception as e:
+            logger.error(f"Error generating audio for '{cmd}': {e}")
+
+def pregenerate_audio(steps, lang="en"):
+    logger.info("Synthesizing teacher voice with gTTS in parallel...")
+    os.makedirs(os.path.join(os.path.dirname(os.path.dirname(__file__)), "audios"), exist_ok=True)
+    pygame.mixer.init()
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(10, max(1, len(steps)))) as executor:
+        futures = [executor.submit(_generate_single_audio, step, lang) for step in steps]
+        concurrent.futures.wait(futures)
+        
     logger.info("Audios ready.")
 
 def play_audio(cmd):
@@ -224,12 +235,3 @@ async def run_geogebra_session(data):
             logger.info("Final cleanup guaranteed: Audios deleted from disk.")
         except Exception as e:
             logger.warning(f"Could not clean up audios: {e}")
-
-
-
-
-
-
-
-
-
