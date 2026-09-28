@@ -5,12 +5,12 @@ import logging
 import io
 import traceback
 import os
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from gtts import gTTS
 from playwright.async_api import async_playwright, TimeoutError
 
 logger = logging.getLogger('TutorGebraBot')
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 import concurrent.futures
 
