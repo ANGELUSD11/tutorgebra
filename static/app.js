@@ -3,6 +3,7 @@ const { createApp, ref } = Vue;
 createApp({
     setup() {
         const apiKey = ref('');
+        const showApiKeyModal = ref(false);
         const prompt = ref('');
         const ttsVoice = ref('auto');
         const loading = ref(false);
@@ -79,6 +80,6 @@ createApp({
             }, 1000);
         };
         
-        return { isDark, toggleDarkMode, botState, botMessage, apiKey, prompt, ttsVoice, loading, error, success, steps, startTutor }
+        return { isDark, toggleDarkMode, showApiKeyModal, botState, botMessage, apiKey, prompt, ttsVoice, loading, error, success, steps, startTutor }
     }
 }).mount('#app');

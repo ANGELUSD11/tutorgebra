@@ -41,7 +41,12 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 transition-colors duration-200">
             
             <div class="mb-6">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Gemini API Key</label>
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Gemini API Key</label>
+                    <button @click="showApiKeyModal = true" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium transition-colors flex items-center gap-1">
+                        <i class="fa-solid fa-circle-question"></i> ¿Cómo obtenerla?
+                    </button>
+                </div>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <i class="fa-solid fa-key text-gray-400 dark:text-gray-500"></i>
@@ -134,6 +139,39 @@
         <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">
             <p>Created by <a href="https://www.angelus11.dev/" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">ANGELUS11</a>. Non-profit, MIT License.</p>
             <p class="mt-1 text-xs opacity-75"><i class="fa-solid fa-circle-info mr-1"></i>You need your own API Key to use this.</p>
+        </div>
+
+        <!-- API Key Modal -->
+        <div v-if="showApiKeyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm transition-opacity">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-lg w-full mx-4 border border-gray-100 dark:border-gray-700 relative">
+                
+                <button @click="showApiKeyModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+                
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-indigo-500"></i> ¿Qué es la API Key?
+                </h2>
+                
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                    TutorGebra necesita un "cerebro" para leer tus ejercicios y convertirlos en código geométrico. Ese cerebro es <strong>Gemini 2.5 Flash</strong>, la IA de Google. Para conectarte con ella de forma gratuita, necesitas una llave personal (API Key).
+                </p>
+                
+                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4 mb-6 border border-indigo-100 dark:border-indigo-800/50">
+                    <h3 class="font-bold text-indigo-800 dark:text-indigo-300 mb-2 text-sm">Pasos para obtener tu clave (¡Es gratis!):</h3>
+                    <ol class="list-decimal list-inside text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                        <li>Entra a <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">Google AI Studio</a>.</li>
+                        <li>Inicia sesión con tu cuenta de Google.</li>
+                        <li>Haz clic en el botón azul <strong>"Create API key"</strong>.</li>
+                        <li>Selecciona un proyecto existente o crea uno nuevo en un clic.</li>
+                        <li>Copia el texto largo que empieza con <code>AIzaSy...</code> y pégalo en TutorGebra.</li>
+                    </ol>
+                </div>
+                
+                <button @click="showApiKeyModal = false" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 font-semibold py-3 rounded-xl transition-colors">
+                    ¡Entendido!
+                </button>
+            </div>
         </div>
     </div>
 
