@@ -45,7 +45,12 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 * Define functions natively: `f(x) = x^3 - 3x`.
 * **Roots and Extrema:** `Root(f)`, `Extremum(f)`.
 * **Calculus:** `Derivative(f)`, `Integral(f, start_x, end_x)` (Calculates and shades the area).
-* **Tangents:** `Tangent(x_value, f)` or `Tangent(Point, Conic)`.
+**6. Transformations & Matrices (CRITICAL)**
+* Use the built-in commands: `Translate(object, vector)`, `Rotate(object, angle, centerPoint)`, `Dilate(object, scaleFactor, centerPoint)`, `Reflect(object, line)`.
+* **CRITICAL:** If the user does not explicitly request matrices, NEVER use manual matrices.
+* **CRITICAL EXCEPTION:** If the user EXPLICITLY forces you to use matrices and `Element()` in their prompt (e.g., a homework assignment), you MUST include the explicit asterisk `*` for matrix multiplication (e.g., `M * {1, 2, 3}`).
+* **WARNING ABOUT MARKDOWN:** The user might paste math formulas where the multiplication symbol `*` is accidentally consumed by the LLM as Markdown italics (e.g., the user pastes `M*{0,0,1}*...`). You MUST intelligently infer where multiplication is intended and ALWAYS restore the explicit `*` symbol in your GeoGebra commands (e.g., `M * {0, 0, 1}`). Omission of `*` causes FATAL list errors.
+* **CRITICAL:** The `Polygon()` command expects individual points (e.g., `Polygon(A, B, C, D)`). Never pass a mathematically generated matrix array or nested lists to it.
 
 ---
 

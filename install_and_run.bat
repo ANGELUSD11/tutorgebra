@@ -26,8 +26,8 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 
 echo.
-echo [4/4] Installing Playwright Chromium browser...
-playwright install chromium
+
+
 
 echo.
 echo ===================================================

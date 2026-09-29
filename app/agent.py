@@ -6,10 +6,9 @@ from google.genai import types
 
 logger = logging.getLogger('TutorGebraAgent')
 
-def generate_geogebra_script(prompt: str) -> dict:
-    api_key = os.environ.get("GEMINI_API_KEY")
+def generate_geogebra_script(prompt: str, api_key: str) -> dict:
     if not api_key:
-        raise ValueError("Environment variable GEMINI_API_KEY not found. Configure it in the UI or your system.")
+        raise ValueError("API Key is missing.")
         
     client = genai.Client(api_key=api_key)
     

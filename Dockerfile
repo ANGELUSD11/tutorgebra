@@ -1,15 +1,10 @@
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+FROM python:3.12-slim
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV PYGAME_HIDE_SUPPORT_PROMPT="hide"
 
-# Install system dependencies for pygame (audio)
-RUN apt-get update && apt-get install -y \
-    libsdl2-dev \
-    libsdl2-mixer-dev \
-    alsa-utils \
-    && rm -rf /var/lib/apt/lists/*
+# Install minimal system dependencies if needed (for gTTS/fastapi mostly none are needed, but let's keep it safe)
+# RUN apt-get update && apt-get install -y ...
 
 # Set working directory
 WORKDIR /app
@@ -19,14 +14,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright chromium (though the base image has it, this ensures version match)
-RUN playwright install chromium
-
 # Copy the rest of the application
 COPY . .
 
 # Expose the FastAPI port
 EXPOSE 8000
 
-# Start the server
-CMD ["python", "app/main.py"]
+# Start the server (Railway provides $PORT)
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
