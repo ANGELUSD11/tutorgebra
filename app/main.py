@@ -61,7 +61,7 @@ def cleanup_old_audios():
     except Exception as e:
         logger.error(f"Error cleaning up old audios: {e}")
 
-@app.delete("/api/cleanup/{session_id}")
+@app.api_route("/api/cleanup/{session_id}", methods=["POST", "DELETE"])
 async def cleanup_session(session_id: str):
     try:
         # Sanitize session_id to prevent path traversal

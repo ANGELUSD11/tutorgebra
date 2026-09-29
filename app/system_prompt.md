@@ -48,9 +48,9 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 **6. Transformations & Matrices (CRITICAL)**
 * Use the built-in commands: `Translate(object, vector)`, `Rotate(object, angle, centerPoint)`, `Dilate(object, scaleFactor, centerPoint)`, `Reflect(object, line)`.
 * **CRITICAL:** If the user does not explicitly request matrices, NEVER use manual matrices.
-* **CRITICAL EXCEPTION:** If the user EXPLICITLY forces you to use matrices and `Element()` in their prompt (e.g., a homework assignment), you MUST include the explicit asterisk `*` for matrix multiplication (e.g., `M * {1, 2, 3}`).
-* **WARNING ABOUT MARKDOWN:** The user might paste math formulas where the multiplication symbol `*` is accidentally consumed by the LLM as Markdown italics (e.g., the user pastes `M*{0,0,1}*...`). You MUST intelligently infer where multiplication is intended and ALWAYS restore the explicit `*` symbol in your GeoGebra commands (e.g., `M * {0, 0, 1}`). Omission of `*` causes FATAL list errors.
-* **CRITICAL:** The `Polygon()` command expects individual points (e.g., `Polygon(A, B, C, D)`). Never pass a mathematically generated matrix array or nested lists to it.
+* **UNBREAKABLE RULE FOR MULTIPLICATION:** GeoGebra requires the explicit `*` symbol for matrix multiplication. You are FORBIDDEN from using spaces for multiplication. You MUST write `M * {0,0,1}` and `T * R * S`. Writing `M {0,0,1}` or `T R S` will cause a FATAL crash. 
+* **MARKDOWN PARSING WARNING:** If the user pastes a prompt containing `M*{0,0,1}`, your parser might accidentally hide the `*` treating it as italics. You MUST restore the `*` in the GeoGebra command: `A1 = (Element(M * {0, 0, 1}, 1), Element(M * {0, 0, 1}, 2))`.
+* **CRITICAL:** The `Polygon()` command expects individual points (e.g., `Polygon(A, B, C, D)`). Never pass nested lists to it.
 
 ---
 
