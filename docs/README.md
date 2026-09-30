@@ -65,6 +65,26 @@ We've included automated setup scripts that create a virtual environment, instal
 5. Click on **"Generar Lección"**.
 6. Enjoy the show! Use the **Player Controls** to pause, advance to the next step, or restart the explanation at your own pace. Click the **Fullscreen** button on the top right of the board to maximize your focus.
 
+## ⚠️ Potential API Key Errors (And How to Fix Them)
+
+Since this project connects directly to Google's artificial intelligence brain (Gemini) using your own free API Key, you might occasionally encounter some error messages, especially during heavy usage. Here is what they mean and how to handle them, no programming knowledge required:
+
+### 1. "Quota Exceeded" or "Too Many Requests" (Error 429)
+* **Why it happens:** Google's free API Keys have limits to prevent abuse (usually around 15 requests per minute or 1,500 per day). If you ask for too many exercises too quickly, Google temporarily "hits the brakes."
+* **What to do:** Simply **wait a couple of minutes**. The per-minute limit resets very fast. If you hit the daily limit (very unlikely for a single teacher), you will have to wait until the next day, or generate a new API Key using a different Google account.
+
+### 2. "Service Unavailable / Overloaded" (Error 500 or 503)
+* **Why it happens:** Sometimes, millions of people globally are using Google Gemini's models at the exact same time, and their physical servers become temporarily saturated. This is not your computer's or your API Key's fault.
+* **What to do:** Think of it like a global traffic jam. Close the error message, wait 30 seconds to a minute, and click "Generate Lesson" again. The traffic usually clears up quickly.
+
+### 3. "Invalid API Key" (Error 400 or 401)
+* **Why it happens:** When copying and pasting your key from Google AI Studio, you might have missed a letter, accidentally copied a blank space at the beginning/end, or pasted something else by mistake.
+* **What to do:** Delete the key you pasted in TutorGebra. Go back to Google AI Studio, use the official "Copy" button (the overlapping pages icon), and paste it again carefully.
+
+### 4. "Connection Failed" or "Network Error"
+* **Why it happens:** Your computer lost internet connection right at that second, or your school/university's firewall/antivirus is blocking the connection to Google's servers.
+* **What to do:** Check your Wi-Fi or try using your phone's cellular data hotspot to confirm if the school network is actively blocking the app.
+
 ---
 
 ## 💡 Example Prompts to Test / Prompts de Ejemplo
