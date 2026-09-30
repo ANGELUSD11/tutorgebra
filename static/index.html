@@ -92,7 +92,7 @@
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Teacher Voice</label>
                             <button @click="toggleEdgeTts" type="button" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-xs font-medium transition-colors flex items-center gap-1">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> {{ useEdgeTts ? 'Basic Voices (gTTS)' : 'More Voices (Premium)' }}
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> {{ useEdgeTts ? 'Basic Voices (gTTS)' : 'More Voices (edgeTTS)' }}
                             </button>
                         </div>
                         
@@ -204,7 +204,7 @@
                     <div v-if="!appletLoaded" class="absolute inset-0 top-12 flex items-center justify-center bg-gray-50/90 dark:bg-gray-900/90 backdrop-blur-sm z-10 transition-opacity duration-300">
                         <div class="text-center text-gray-500">
                             <i class="fa-solid fa-shapes text-5xl mb-4 opacity-50 animate-pulse"></i>
-                            <p class="animate-pulse">Loading GeoGebra engine...</p>
+                            <p class="animate-pulse">Enter your query to load the engine.</p>
                         </div>
                     </div>
                     
