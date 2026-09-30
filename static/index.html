@@ -89,16 +89,36 @@
                     </div>
                     
                     <div class="mb-6">
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Teacher Voice / Accent</label>
-                        <select v-model="ttsVoice" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-colors">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Teacher Voice</label>
+                            <button @click="toggleEdgeTts" type="button" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-xs font-medium transition-colors flex items-center gap-1">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> {{ useEdgeTts ? 'Basic Voices (gTTS)' : 'More Voices (Premium)' }}
+                            </button>
+                        </div>
+                        
+                        <select v-if="!useEdgeTts" v-model="ttsVoice" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-colors">
                             <option value="auto">Auto-detect Language (AI)</option>
-                            <optgroup label="Spanish">
+                            <optgroup label="Spanish (Female only)">
                                 <option value="es-es">Español (España)</option>
                                 <option value="es-com.mx">Español (México)</option>
                             </optgroup>
-                            <optgroup label="English">
+                            <optgroup label="English (Female only)">
                                 <option value="en-us">English (US)</option>
                                 <option value="en-co.uk">English (UK)</option>
+                            </optgroup>
+                        </select>
+                        
+                        <select v-else v-model="edgeVoice" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-colors">
+                            <optgroup label="Spanish">
+                                <option value="es-MX-JorgeNeural">Español (México) - Jorge (Male)</option>
+                                <option value="es-MX-DaliaNeural">Español (México) - Dalia (Female)</option>
+                                <option value="es-ES-AlvaroNeural">Español (España) - Alvaro (Male)</option>
+                                <option value="es-ES-ElviraNeural">Español (España) - Elvira (Female)</option>
+                            </optgroup>
+                            <optgroup label="English">
+                                <option value="en-US-GuyNeural">English (US) - Guy (Male)</option>
+                                <option value="en-US-JennyNeural">English (US) - Jenny (Female)</option>
+                                <option value="en-GB-RyanNeural">English (UK) - Ryan (Male)</option>
                             </optgroup>
                         </select>
                     </div>

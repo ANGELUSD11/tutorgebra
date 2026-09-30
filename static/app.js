@@ -6,6 +6,9 @@ createApp({
         const showApiKeyModal = ref(false);
         const prompt = ref('');
         const ttsVoice = ref('auto');
+        const edgeVoice = ref('es-MX-JorgeNeural');
+        const useEdgeTts = ref(false);
+        const toggleEdgeTts = () => { useEdgeTts.value = !useEdgeTts.value; };
         const loading = ref(false);
         const loadingMessage = ref('Iniciando...');
         const loadingPercent = ref(0);
@@ -112,7 +115,8 @@ createApp({
                     body: JSON.stringify({
                         prompt: prompt.value,
                         api_key: apiKey.value,
-                        voice: ttsVoice.value
+                        voice: useEdgeTts.value ? null : ttsVoice.value,
+                        edge_voice: useEdgeTts.value ? edgeVoice.value : null
                     })
                 });
                 
@@ -249,7 +253,7 @@ createApp({
                 if (!isPlaying.value) return;
                 
                 // Al terminar de escribir, inyectarlo en GeoGebra
-                if (ggbAppletInstance) {
+                if (ggbAppletInstance && step.command && step.command.trim() !== '') {
                     ggbAppletInstance.evalCommand(step.command);
                 }
                 
@@ -321,6 +325,7 @@ createApp({
 
         return { 
             isDark, toggleDarkMode, showApiKeyModal, apiKey, prompt, ttsVoice, 
+            useEdgeTts, edgeVoice, toggleEdgeTts,
             loading, loadingMessage, loadingPercent, error, steps, startTutor,
             appletLoaded, isPlaying, currentStep, togglePlay, resetLesson, nextStep,
             isFullscreen, toggleFullscreen, currentTypedText, volume

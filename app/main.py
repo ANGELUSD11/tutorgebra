@@ -18,7 +18,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger('TutorGebraWeb')
 
-app = FastAPI(title="TutorGebra")
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Clean up immediately on startup
+    await asyncio.to_thread(cleanup_old_audios)
+    # Start periodic background cleanup task
+    task = asyncio.create_task(periodic_cleanup())
+    yield
+    # Clean up background task on shutdown
+    task.cancel()
+
+app = FastAPI(title="TutorGebra", lifespan=lifespan)
 
 static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
 os.makedirs(static_path, exist_ok=True)
@@ -68,13 +80,6 @@ async def periodic_cleanup():
         await asyncio.to_thread(cleanup_old_audios)
         await asyncio.sleep(600) # Run every 10 minutes
 
-@app.on_event("startup")
-async def startup_event():
-    # Clean up immediately on startup
-    await asyncio.to_thread(cleanup_old_audios)
-    # Start periodic background cleanup task
-    asyncio.create_task(periodic_cleanup())
-
 @app.api_route("/api/cleanup/{session_id}", methods=["POST", "DELETE"])
 async def cleanup_session(session_id: str):
     try:
@@ -93,6 +98,7 @@ async def run_exercise(req: Request):
     prompt = body.get("prompt", "")
     api_key = body.get("api_key", "")
     voice = body.get("voice", "auto")
+    edge_voice = body.get("edge_voice")
         
     async def event_stream():
         try:
@@ -105,7 +111,7 @@ async def run_exercise(req: Request):
             lang = data.get("language", "en")
             tld = "com"
             
-            if voice != "auto":
+            if voice and voice != "auto":
                 parts = voice.split('-')
                 if len(parts) == 2:
                     lang = parts[0]
@@ -113,11 +119,15 @@ async def run_exercise(req: Request):
                     
             yield f"data: {json.dumps({'status': 'progress', 'message': f'Lesson generated ({len(steps)} steps). Synthesizing teacher voice...', 'percent': 30})}\n\n"
             
-            from bot import _generate_single_audio
             tasks = []
-            # We want to keep original order, so we index the tasks
-            for i, step in enumerate(steps):
-                tasks.append(asyncio.to_thread(_generate_single_audio, step, lang, tld, session_id))
+            if edge_voice:
+                from bot import _generate_single_edge_audio
+                for i, step in enumerate(steps):
+                    tasks.append(_generate_single_edge_audio(step, edge_voice, session_id))
+            else:
+                from bot import _generate_single_audio
+                for i, step in enumerate(steps):
+                    tasks.append(asyncio.to_thread(_generate_single_audio, step, lang, tld, session_id))
             
             completed = 0
             total = len(tasks)
