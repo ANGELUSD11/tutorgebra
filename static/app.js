@@ -124,12 +124,26 @@ createApp({
                     if (done) break;
                     
                     buffer += decoder.decode(value, { stream: true });
-                    const lines = buffer.split('\n\n');
+                    const lines = buffer.split('\n');
                     buffer = lines.pop(); // keep incomplete chunk
                     
-                    for (const line of lines) {
-                        if (line.startsWith('data: ')) {
-                            const data = JSON.parse(line.substring(6));
+                    for (let line of lines) {
+                        line = line.trim();
+                        if (!line) continue;
+                        
+                        if (line.startsWith('data:')) {
+                            // Extract JSON string and safely parse
+                            const jsonStr = line.substring(5).trim();
+                            if (!jsonStr) continue;
+                            
+                            let data;
+                            try {
+                                data = JSON.parse(jsonStr);
+                            } catch (err) {
+                                console.error("Error parsing SSE JSON:", jsonStr, err);
+                                continue;
+                            }
+                            
                             if (data.status === 'progress') {
                                 loadingMessage.value = data.message;
                                 loadingPercent.value = data.percent;
