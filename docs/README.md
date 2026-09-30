@@ -87,6 +87,16 @@ Since this project connects directly to Google's artificial intelligence brain (
 
 ---
 
+## 🧪 Disclaimer & Contributing
+
+**1. Experimental Project:** Please note that TutorGebra AI is an highly experimental project. It is currently being developed and maintained by a developer who does not possess advanced or specialized mathematical knowledge. Because mathematics is incredibly vast, many edge cases, complex geometrical constructions, and advanced calculus scenarios are not yet fully covered by the AI's internal guardrails. As a result, the application might occasionally crash, the AI might hallucinate invalid GeoGebra commands, or it might construct a mathematically flawed explanation.
+
+**2. Contributions are Highly Encouraged:** If you encounter hallucinations, bad text formatting in the UI, GeoGebra syntax crashes, or mathematical logic errors, your help is warmly welcomed! Please feel free to open an **Issue** on the repository to report the bug, or submit a **Pull Request (PR)** if you know how to fix it in the code or system prompt. 
+
+**3. Calling All Mathematicians:** This project relies on continuous collaboration. We desperately need the support of mathematicians, teachers, and domain experts who *actually* know the math to help us refine the model's inference rules. Your expertise can help us write better, stricter guardrails in the `system_prompt.md` to prevent the AI from making complex mathematical mistakes, ultimately creating a more robust and reliable educational tool for everyone.
+
+---
+
 ## 💡 Example Prompts to Test / Prompts de Ejemplo
 
 You can copy and paste any of these prompts directly into the TutorGebra interface to test different mathematical domains and GeoGebra tools. Prompts can be entered in Spanish, English, or any other supported language.
