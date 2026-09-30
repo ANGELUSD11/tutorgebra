@@ -33,8 +33,7 @@ class ExerciseRequest(BaseModel):
     api_key: str
     voice: str = "auto"
 
-from fastapi.responses import FileResponse
-
+from fastapi.responses import FileResponse, StreamingResponse
 @app.get("/", response_class=HTMLResponse)
 async def serve_ui():
     index_path = os.path.join(static_path, "index.html")
@@ -48,6 +47,7 @@ async def favicon():
 import time
 import shutil
 import uuid
+import json
 
 def cleanup_old_audios():
     try:
@@ -74,31 +74,67 @@ async def cleanup_session(session_id: str):
         return {"status": "error", "detail": str(e)}
 
 @app.post("/api/run")
-async def run_exercise(req: ExerciseRequest):
+async def run_exercise(req: Request):
+    body = await req.json()
+    prompt = body.get("prompt", "")
+    api_key = body.get("api_key", "")
+    voice = body.get("voice", "auto")
+    
     # Background cleanup of old audios so server disk doesn't fill up
     asyncio.create_task(asyncio.to_thread(cleanup_old_audios))
         
-    try:
-        session_id = str(uuid.uuid4())
-        data = generate_geogebra_script(req.prompt, req.api_key)
-        steps = data.get("steps", [])
-        lang = data.get("language", "en")
-        tld = "com"
-        
-        if req.voice != "auto":
-            parts = req.voice.split('-')
-            if len(parts) == 2:
-                lang = parts[0]
-                tld = parts[1]
+    async def event_stream():
+        try:
+            yield f"data: {json.dumps({'status': 'progress', 'message': 'Thinking about the mathematical solution...', 'percent': 10})}\n\n"
+            
+            session_id = str(uuid.uuid4())
+            # Run Gemini in thread to prevent blocking loop
+            data = await asyncio.to_thread(generate_geogebra_script, prompt, api_key)
+            steps = data.get("steps", [])
+            lang = data.get("language", "en")
+            tld = "com"
+            
+            if voice != "auto":
+                parts = voice.split('-')
+                if len(parts) == 2:
+                    lang = parts[0]
+                    tld = parts[1]
+                    
+            yield f"data: {json.dumps({'status': 'progress', 'message': f'Lesson generated ({len(steps)} steps). Synthesizing teacher voice...', 'percent': 30})}\n\n"
+            
+            from bot import _generate_single_audio
+            tasks = []
+            # We want to keep original order, so we index the tasks
+            for i, step in enumerate(steps):
+                tasks.append(asyncio.to_thread(_generate_single_audio, step, lang, tld, session_id))
+            
+            completed = 0
+            total = len(tasks)
+            
+            for coro in asyncio.as_completed(tasks):
+                if await req.is_disconnected():
+                    logger.info("Client disconnected. Aborting audio synthesis.")
+                    break
+                    
+                await coro
+                completed += 1
+                percent = 30 + int((completed / total) * 70)
                 
-        # Generate audios and attach their URLs
-        steps_with_audio = await asyncio.to_thread(pregenerate_audio, steps, lang, tld, session_id)
-        
-        return {"steps": steps_with_audio, "session_id": session_id}
-    except Exception as e:
-        logger.error("Critical error in bot execution:")
-        logger.error(traceback.format_exc())
-        raise HTTPException(status_code=500, detail=str(e))
+                # Check disconnect again before yielding
+                if await req.is_disconnected():
+                    break
+                    
+                yield f"data: {json.dumps({'status': 'progress', 'message': f'Synthesizing audio step {completed}/{total}...', 'percent': percent})}\n\n"
+            
+            if not await req.is_disconnected():
+                yield f"data: {json.dumps({'status': 'done', 'steps': steps, 'session_id': session_id})}\n\n"
+        except Exception as e:
+            logger.error("Critical error in bot execution:")
+            logger.error(traceback.format_exc())
+            if not await req.is_disconnected():
+                yield f"data: {json.dumps({'status': 'error', 'detail': str(e)})}\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))

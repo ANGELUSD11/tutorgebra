@@ -7,6 +7,8 @@ createApp({
         const prompt = ref('');
         const ttsVoice = ref('auto');
         const loading = ref(false);
+        const loadingMessage = ref('Iniciando...');
+        const loadingPercent = ref(0);
         const error = ref('');
         const steps = ref([]);
         const sessionId = ref(null);
@@ -107,18 +109,51 @@ createApp({
                     })
                 });
                 
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.detail || 'Server error');
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || 'Server error');
+                }
                 
-                steps.value = data.steps;
-                sessionId.value = data.session_id;
-                // Check if GeoGebra finished loading
-                const checkAndPlay = setInterval(() => {
-                    if (appletLoaded.value) {
-                        clearInterval(checkAndPlay);
-                        togglePlay();
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = "";
+                let completedSuccessfully = false;
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n\n');
+                    buffer = lines.pop(); // keep incomplete chunk
+                    
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = JSON.parse(line.substring(6));
+                            if (data.status === 'progress') {
+                                loadingMessage.value = data.message;
+                                loadingPercent.value = data.percent;
+                            } else if (data.status === 'done') {
+                                completedSuccessfully = true;
+                                steps.value = data.steps;
+                                sessionId.value = data.session_id;
+                                // Check if GeoGebra finished loading
+                                const checkAndPlay = setInterval(() => {
+                                    if (appletLoaded.value) {
+                                        clearInterval(checkAndPlay);
+                                        togglePlay();
+                                    }
+                                }, 500);
+                            } else if (data.status === 'error') {
+                                throw new Error(data.detail || 'Error during generation');
+                            }
+                        }
                     }
-                }, 500);
+                }
+                
+                if (!completedSuccessfully) {
+                    throw new Error("La conexión se interrumpió inesperadamente. Intenta nuevamente.");
+                }
             } catch (e) {
                 error.value = e.message;
             } finally {
@@ -234,7 +269,7 @@ createApp({
 
         return { 
             isDark, toggleDarkMode, showApiKeyModal, apiKey, prompt, ttsVoice, 
-            loading, error, steps, startTutor,
+            loading, loadingMessage, loadingPercent, error, steps, startTutor,
             appletLoaded, isPlaying, currentStep, togglePlay, resetLesson, nextStep,
             isFullscreen, toggleFullscreen, currentTypedText
         };

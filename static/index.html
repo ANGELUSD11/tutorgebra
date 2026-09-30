@@ -110,6 +110,16 @@
                         {{ loading ? 'Generating lesson...' : 'Generate Lesson' }}
                     </button>
                     
+                    <div v-if="loading" class="mt-4">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-xs font-medium text-indigo-700 dark:text-indigo-400">{{ loadingMessage }}</span>
+                            <span class="text-xs font-medium text-indigo-700 dark:text-indigo-400">{{ loadingPercent }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 overflow-hidden">
+                            <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" :style="'width: ' + loadingPercent + '%'"></div>
+                        </div>
+                    </div>
+                    
                     <div v-if="error" class="mt-4 p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm border border-red-200 dark:border-red-800">
                         <i class="fa-solid fa-triangle-exclamation mr-2"></i> {{ error }}
                     </div>
