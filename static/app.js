@@ -1,4 +1,4 @@
-const { createApp, ref } = Vue;
+const { createApp, ref, watch } = Vue;
 
 createApp({
     setup() {
@@ -17,7 +17,14 @@ createApp({
         const isPlaying = ref(false);
         const isFullscreen = ref(false);
         const currentStep = ref(0);
+        const volume = ref(1.0);
         let currentAudio = null;
+
+        watch(volume, (newVol) => {
+            if (currentAudio) {
+                currentAudio.volume = newVol;
+            }
+        });
         let ggbAppletInstance = null;
         let resizeObserver = null;
 
@@ -177,6 +184,35 @@ createApp({
 
         const currentTypedText = ref(null);
         
+        let audioCtx = null;
+        const playTypingSound = () => {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            // Tono corto y seco
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300 + Math.random() * 100, audioCtx.currentTime);
+            
+            // Envolvente de volumen atado a volume.value
+            const maxVol = 0.1 * volume.value;
+            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(maxVol, audioCtx.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 0.05);
+        };
+
         const typeCommand = (command, callback) => {
             currentTypedText.value = '';
             let i = 0;
@@ -187,6 +223,7 @@ createApp({
                 }
                 if (i < command.length) {
                     currentTypedText.value += command.charAt(i);
+                    playTypingSound();
                     i++;
                     setTimeout(typeChar, Math.random() * 40 + 30); // Human-like variable delay
                 } else {
@@ -219,6 +256,7 @@ createApp({
                 // Reproducir el audio inmediatamente después de inyectar el gráfico
                 if (step.audio_url) {
                     currentAudio = new Audio(step.audio_url);
+                    currentAudio.volume = volume.value;
                     currentAudio.onended = () => {
                         if (isPlaying.value) {
                             currentStep.value++;
@@ -285,7 +323,7 @@ createApp({
             isDark, toggleDarkMode, showApiKeyModal, apiKey, prompt, ttsVoice, 
             loading, loadingMessage, loadingPercent, error, steps, startTutor,
             appletLoaded, isPlaying, currentStep, togglePlay, resetLesson, nextStep,
-            isFullscreen, toggleFullscreen, currentTypedText
+            isFullscreen, toggleFullscreen, currentTypedText, volume
         };
     }
 }).mount('#app');

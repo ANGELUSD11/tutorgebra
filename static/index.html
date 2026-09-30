@@ -128,7 +128,7 @@
                 <!-- Lesson Player Controls -->
                 <div v-if="steps.length > 0" class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700">
                     <h3 class="text-lg font-bold mb-4 border-b dark:border-gray-700 pb-2">Player Controls</h3>
-                    <div class="flex justify-center gap-4 mb-6">
+                    <div class="flex justify-center gap-4 mb-4">
                         <button @click="resetLesson" class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors" title="Restart">
                             <i class="fa-solid fa-rotate-left"></i>
                         </button>
@@ -138,6 +138,13 @@
                         <button @click="nextStep" :disabled="currentStep >= steps.length" class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors disabled:opacity-50" title="Next Step">
                             <i class="fa-solid fa-forward-step"></i>
                         </button>
+                    </div>
+
+                    <!-- Volume Control -->
+                    <div class="flex items-center gap-3 mb-6 px-4 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
+                        <i class="fa-solid fa-volume-low text-gray-500 dark:text-gray-400"></i>
+                        <input type="range" min="0" max="1" step="0.05" v-model.number="volume" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-indigo-600">
+                        <i class="fa-solid fa-volume-high text-gray-500 dark:text-gray-400"></i>
                     </div>
 
                     <div class="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
