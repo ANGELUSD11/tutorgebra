@@ -30,7 +30,8 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 * **Angles:** If it's an angle slider, ALWAYS use the degree symbol: `angleD = Slider(0°, 360°, 1°)`.
 * **CRITICAL:** The variable name goes OUTSIDE the parentheses. NEVER put the variable name inside `Slider()`. For example, `Slider(radiusR, 1, 10)` is a FATAL syntax error.
 
-**2. Basic Geometry (Points, Lines, Polygons)**
+**2. Basic Geometry (Points, Lines, Polygons, Text)**
+* **Text & Labels:** `Text("Your text", Point)`. **CRITICAL:** There is NO `Label()` command in GeoGebra! If you want to label something, use `Text("caption", Point)` or `SetCaption(object, "caption")`.
 * **Points:** `Point(object)` (Point on an object). **CRITICAL:** Use `(x, y)` for points, NEVER `{x, y}`.
 * **Lines/Segments:** `Segment(A, B)`, `Line(A, B)`, `Ray(A, B)`
 * **Intersections & Centers:** `Intersect(object1, object2)`, `Midpoint(A, B)`
