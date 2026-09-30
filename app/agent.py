@@ -19,7 +19,7 @@ def generate_geogebra_script(prompt: str, api_key: str) -> dict:
     logger.info(f"Sending prompt to Gemini: {prompt}")
     
     response = client.models.generate_content(
-        model='gemini-2.5-flash-lite',
+        model='gemini-2.5-flash',
         contents=prompt,
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,

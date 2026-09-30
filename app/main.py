@@ -51,6 +51,8 @@ import json
 
 def cleanup_old_audios():
     try:
+        if not os.path.exists(audios_path):
+            return
         now = time.time()
         for foldername in os.listdir(audios_path):
             folder_path = os.path.join(audios_path, foldername)
@@ -60,6 +62,18 @@ def cleanup_old_audios():
                     shutil.rmtree(folder_path, ignore_errors=True)
     except Exception as e:
         logger.error(f"Error cleaning up old audios: {e}")
+
+async def periodic_cleanup():
+    while True:
+        await asyncio.to_thread(cleanup_old_audios)
+        await asyncio.sleep(600) # Run every 10 minutes
+
+@app.on_event("startup")
+async def startup_event():
+    # Clean up immediately on startup
+    await asyncio.to_thread(cleanup_old_audios)
+    # Start periodic background cleanup task
+    asyncio.create_task(periodic_cleanup())
 
 @app.api_route("/api/cleanup/{session_id}", methods=["POST", "DELETE"])
 async def cleanup_session(session_id: str):
@@ -79,9 +93,6 @@ async def run_exercise(req: Request):
     prompt = body.get("prompt", "")
     api_key = body.get("api_key", "")
     voice = body.get("voice", "auto")
-    
-    # Background cleanup of old audios so server disk doesn't fill up
-    asyncio.create_task(asyncio.to_thread(cleanup_old_audios))
         
     async def event_stream():
         try:
