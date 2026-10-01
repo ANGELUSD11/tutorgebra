@@ -7,7 +7,12 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+
 import uvicorn
+import time
+import shutil
+import uuid
+import json
 
 from app.agent import generate_geogebra_script
 from app.bot import pregenerate_audio
@@ -61,11 +66,6 @@ async def serve_ui():
 @app.get("/favicon.ico")
 async def favicon():
     return FileResponse(os.path.join(static_path, "favicon.ico"))
-
-import time
-import shutil
-import uuid
-import json
 
 def cleanup_old_audios():
     try:
