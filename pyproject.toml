@@ -1,13 +1,19 @@
 [project]
 name = "tutorgebra"
 version = "0.1.0"
-description = "Add your description here"
+description = "Your automated interactive geometry tutor."
 readme = "README.md"
 authors = [
     { name = "ANGELUSD11", email = "angelleonardohern3@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "gTTS",
+    "google-genai",
+    "edge-tts",
+]
 
 [project.scripts]
 tutorgebra = "tutorgebra:main"
