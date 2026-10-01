@@ -60,7 +60,7 @@ async def serve_ui():
 
 @app.get("/favicon.ico")
 async def favicon():
-    return FileResponse(os.path.join(static_path, "favicon.png"))
+    return FileResponse(os.path.join(static_path, "favicon.ico"))
 
 import time
 import shutil

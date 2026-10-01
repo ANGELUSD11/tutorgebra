@@ -36,6 +36,6 @@ echo Please leave this window open.
 echo Open your browser and go to http://localhost:8000
 echo ===================================================
 echo.
-python app/main.py
+python -m app.main
 
 pause

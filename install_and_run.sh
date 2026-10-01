@@ -37,4 +37,4 @@ echo "Please leave this terminal open."
 echo "Open your browser and go to http://localhost:8000"
 echo "==================================================="
 echo ""
-python3 app/main.py
+python3 -m app.main
