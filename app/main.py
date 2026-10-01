@@ -9,8 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
 
-from agent import generate_geogebra_script
-from bot import pregenerate_audio
+from app.agent import generate_geogebra_script
+from app.bot import pregenerate_audio
 
 logging.basicConfig(
     level=logging.INFO,
