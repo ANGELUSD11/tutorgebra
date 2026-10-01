@@ -142,11 +142,11 @@ async def run_exercise(req: Request):
             
             tasks = []
             if edge_voice:
-                from bot import _generate_single_edge_audio
+                from app.bot import _generate_single_edge_audio
                 for i, step in enumerate(steps):
                     tasks.append(_generate_single_edge_audio(step, edge_voice, session_id))
             else:
-                from bot import _generate_single_audio
+                from app.bot import _generate_single_audio
                 for i, step in enumerate(steps):
                     tasks.append(asyncio.to_thread(_generate_single_audio, step, lang, tld, session_id))
             
