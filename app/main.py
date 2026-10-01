@@ -19,10 +19,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger('TutorGebraWeb')
 
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Dynamically expand thread pool for blocking I/O (Gemini API & gTTS) up to 200 workers during traffic spikes
+    loop = asyncio.get_running_loop()
+    loop.set_default_executor(ThreadPoolExecutor(max_workers=200))
+    
     # Clean up immediately on startup
     await asyncio.to_thread(cleanup_old_audios)
     # Start periodic background cleanup task
