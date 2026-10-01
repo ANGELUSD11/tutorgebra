@@ -75,12 +75,17 @@ createApp({
                     ggbAppletInstance = api;
                     appletLoaded.value = true;
                     
+                    let resizeTimeout;
                     resizeObserver = new ResizeObserver(entries => {
-                        for (let entry of entries) {
+                        clearTimeout(resizeTimeout);
+                        resizeTimeout = setTimeout(() => {
                             if (ggbAppletInstance) {
-                                ggbAppletInstance.setSize(entry.contentRect.width, entry.contentRect.height);
+                                const rect = entries[0].contentRect;
+                                if (rect.width > 0 && rect.height > 0) {
+                                    ggbAppletInstance.setSize(rect.width, rect.height);
+                                }
                             }
-                        }
+                        }, 150); // wait for rotation/animations to finish
                     });
                     resizeObserver.observe(container);
                 }
