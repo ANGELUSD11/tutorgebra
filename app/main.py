@@ -2,6 +2,7 @@ import asyncio
 import logging
 import traceback
 import os
+from collections import defaultdict
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -92,8 +93,28 @@ async def cleanup_session(session_id: str):
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
+# Simple In-Memory Rate Limiter (Anti-DDoS Layer 7)
+RATE_LIMIT = 5  # Max requests
+RATE_LIMIT_WINDOW = 60  # Per 60 seconds
+ip_requests = defaultdict(list)
+
+def check_rate_limit(request: Request):
+    # Get IP, accounting for PaaS reverse proxies like Railway or Cloudflare
+    client_ip = request.headers.get("x-forwarded-for", request.client.host).split(",")[0].strip()
+    now = time.time()
+    
+    # Clean up requests older than the window
+    ip_requests[client_ip] = [t for t in ip_requests[client_ip] if now - t < RATE_LIMIT_WINDOW]
+    
+    if len(ip_requests[client_ip]) >= RATE_LIMIT:
+        logger.warning(f"Rate limit exceeded for IP: {client_ip}")
+        raise HTTPException(status_code=429, detail="Too many requests. Please wait a minute before generating another lesson.")
+        
+    ip_requests[client_ip].append(now)
+
 @app.post("/api/run")
 async def run_exercise(req: Request):
+    check_rate_limit(req)
     body = await req.json()
     prompt = body.get("prompt", "")
     api_key = body.get("api_key", "")
