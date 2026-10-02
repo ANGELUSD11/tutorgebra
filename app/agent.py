@@ -1,12 +1,13 @@
 import os
 import json
 import logging
+import base64
 from google import genai
 from google.genai import types
 
 logger = logging.getLogger('TutorGebraAgent')
 
-def generate_geogebra_script(prompt: str, api_key: str) -> dict:
+def generate_geogebra_script(prompt: str, api_key: str, image_b64: str = None) -> dict:
     if not api_key:
         raise ValueError("API Key is missing.")
         
@@ -18,9 +19,17 @@ def generate_geogebra_script(prompt: str, api_key: str) -> dict:
     
     logger.info(f"Sending prompt to Gemini: {prompt}")
     
+    contents = [prompt]
+    if image_b64:
+        image_bytes = base64.b64decode(image_b64)
+        # Using image/jpeg as a fallback, gemini usually handles png/jpg fine
+        image_part = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
+        contents.append(image_part)
+        logger.info("Included image in the prompt")
+    
     response = client.models.generate_content(
         model='gemini-2.5-flash',
-        contents=prompt,
+        contents=contents,
         config=types.GenerateContentConfig(
             system_instruction=system_prompt,
             response_mime_type="application/json",
