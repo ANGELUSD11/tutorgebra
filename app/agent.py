@@ -7,11 +7,12 @@ from google.genai import types, errors
 
 logger = logging.getLogger('TutorGebraAgent')
 
-def generate_geogebra_script(prompt: str, api_key: str, image_b64: str = None) -> dict:
-    if not api_key:
-        raise ValueError("API Key is missing.")
+def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = None) -> dict:
+    final_api_key = api_key.strip() if api_key else os.environ.get("GEMINI_API_KEY")
+    if not final_api_key:
+        raise ValueError("API Key is missing. Please provide one in the UI or configure the server with GEMINI_API_KEY.")
         
-    client = genai.Client(api_key=api_key)
+    client = genai.Client(api_key=final_api_key)
     
     prompt_path = os.path.join(os.path.dirname(__file__), "system_prompt.md")
     with open(prompt_path, "r", encoding="utf-8") as f:

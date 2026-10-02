@@ -122,7 +122,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-200">
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-2">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Gemini API Key</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Gemini API Key (Optional)</label>
                             <button @click="showApiKeyModal = true" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium transition-colors flex items-center gap-1">
                                 <i class="fa-solid fa-circle-question"></i> How to get it?
                             </button>
@@ -131,10 +131,10 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fa-solid fa-key text-gray-400 dark:text-gray-500"></i>
                             </div>
-                            <input type="password" v-model="apiKey" placeholder="AIzaSy..." 
+                            <input type="password" v-model="apiKey" placeholder="Leave blank to use Server's free key" 
                                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
                         </div>
-                        <p class="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1 font-medium"><i class="fa-solid fa-shield-halved"></i> Privacy secured: Your API key is never logged or stored on our servers.</p>
+                        <p class="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1 font-medium"><i class="fa-solid fa-server"></i> Uses server key by default. Enter your own for private quotas.</p>
                     </div>
 
                     <div class="mb-4">
@@ -194,7 +194,7 @@
                         </select>
                     </div>
 
-                    <button @click="startTutor" :disabled="loading || !apiKey || !prompt" 
+                    <button @click="startTutor" :disabled="loading || !prompt" 
                             class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i v-if="loading" class="fa-solid fa-circle-notch fa-spin"></i>
                         <i v-else class="fa-solid fa-chalkboard-user"></i>
