@@ -122,7 +122,7 @@
                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors duration-200">
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-2">
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Gemini API Key (Optional)</label>
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">OpenRouter API Key (Optional)</label>
                             <button @click="showApiKeyModal = true" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium transition-colors flex items-center gap-1">
                                 <i class="fa-solid fa-circle-question"></i> How to get it?
                             </button>
@@ -310,19 +310,19 @@
                     <i class="fa-solid fa-key text-indigo-500"></i> What is the API Key?
                 </h2>
                 <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                    TutorGebra needs a "brain" to read your exercises and convert them into geometric code. That brain is <strong>Gemini 2.5 Flash</strong>, Google's AI. To connect to it for free, you need a personal key (API Key).
+                    TutorGebra needs a "brain" to read your exercises and convert them into geometric code. We use <strong>OpenRouter</strong> to route your requests to the best free AI models available (like Gemini). If the server key is exhausted, you can use your own personal key.
                 </p>
                 <div class="flex items-start gap-3 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-4 border border-green-200 dark:border-green-800/30">
                     <i class="fa-solid fa-shield-halved text-green-600 dark:text-green-400 mt-0.5"></i>
-                    <p class="text-xs text-green-700 dark:text-green-300"><strong>100% Secure:</strong> Your API key acts as a direct bridge between you and Google. We never log, collect, or store your key on our servers.</p>
+                    <p class="text-xs text-green-700 dark:text-green-300"><strong>100% Secure:</strong> Your API key acts as a direct bridge between you and OpenRouter. We never log, collect, or store your key on our servers.</p>
                 </div>
                 <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4 mb-6 border border-indigo-100 dark:border-indigo-800/50">
                     <h3 class="font-bold text-indigo-800 dark:text-indigo-300 mb-2 text-sm">Steps to get your key (It's free!):</h3>
                     <ol class="list-decimal list-inside text-sm text-gray-700 dark:text-gray-300 space-y-2">
-                        <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">Google AI Studio</a>.</li>
-                        <li>Log in with your Google account.</li>
-                        <li>Click the blue <strong>"Create API key"</strong> button.</li>
-                        <li>Copy the long text starting with <code>AIzaSy...</code> and paste it into TutorGebra.</li>
+                        <li>Go to <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">OpenRouter.ai</a>.</li>
+                        <li>Log in with your Google or GitHub account.</li>
+                        <li>Click the <strong>"Create Key"</strong> button.</li>
+                        <li>Copy the generated code and paste it into TutorGebra.</li>
                     </ol>
                 </div>
                 <button @click="showApiKeyModal = false" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 font-semibold py-3 rounded-xl transition-colors">

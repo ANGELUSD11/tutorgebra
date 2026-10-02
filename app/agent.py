@@ -2,55 +2,62 @@ import os
 import json
 import logging
 import base64
-from google import genai
-from google.genai import types, errors
+from openrouter import OpenRouter
 
 logger = logging.getLogger('TutorGebraAgent')
 
 def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = None) -> dict:
-    final_api_key = api_key.strip() if api_key else os.environ.get("GEMINI_API_KEY")
+    final_api_key = api_key.strip() if api_key else os.environ.get("OPENROUTER_API_KEY")
     if not final_api_key:
-        raise ValueError("API Key is missing. Please provide one in the UI or configure the server with GEMINI_API_KEY.")
+        raise ValueError("OpenRouter API Key is missing. Please provide one in the UI or configure the server with OPENROUTER_API_KEY.")
         
-    client = genai.Client(api_key=final_api_key)
+    client = OpenRouter(api_key=final_api_key)
     
     prompt_path = os.path.join(os.path.dirname(__file__), "system_prompt.md")
     with open(prompt_path, "r", encoding="utf-8") as f:
         system_prompt = f.read()
     
-    logger.info(f"Sending prompt to Gemini: {prompt}")
+    logger.info(f"Sending prompt to OpenRouter: {prompt}")
     
-    contents = [prompt]
+    user_content = [{"type": "text", "text": prompt}]
     if image_b64:
-        image_bytes = base64.b64decode(image_b64)
-        # Using image/jpeg as a fallback, gemini usually handles png/jpg fine
-        image_part = types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg")
-        contents.append(image_part)
+        user_content.append({
+            "type": "image_url",
+            "image_url": {
+                "url": f"data:image/jpeg;base64,{image_b64}"
+            }
+        })
         logger.info("Included image in the prompt")
+        
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_content}
+    ]
     
     try:
-        response = client.models.generate_content(
-            model='gemini-3.8-flash',
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
-                response_mime_type="application/json",
-                temperature=0.7
-            )
+        response = client.chat.send(
+            # OpenRouter Fallback system: If the first model is busy or down, it tries the second, and so on.
+            models=[
+                'google/gemini-3.8-flash', 
+                'google/gemini-3.7-flash',
+                'google/gemini-2.5-flash',
+                'openai/gpt-4o-mini',
+                'anthropic/claude-3.5-haiku'
+            ],
+            messages=messages,
+            response_format={'type': 'json_object'},
+            temperature=0.7,
+            max_completion_tokens=2500
         )
-    except errors.APIError as e:
-        logger.error(f"Gemini API Error: {e}")
-        if e.code == 503:
-            raise Exception("Google Gemini servers are currently experiencing high demand. Please try again in a few seconds.")
-        elif e.code == 429:
-            raise Exception("You have reached the API request limit or your quota is exhausted. Please try again later.")
-        else:
-            raise Exception(f"AI Connection Error ({e.code}): {e.message}")
+    except Exception as e:
+        logger.error(f"OpenRouter API Error: {e}")
+        raise Exception(f"AI Connection Error: {e}")
     
     try:
-        data = json.loads(response.text)
+        content = response.choices[0].message.content
+        data = json.loads(content)
         return data
     except Exception as e:
         logger.error(f"Error parsing JSON response: {e}")
-        logger.error(f"Raw response: {response.text}")
+        logger.error(f"Raw response: {content if 'content' in locals() else 'None'}")
         raise

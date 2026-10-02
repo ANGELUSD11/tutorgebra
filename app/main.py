@@ -2,6 +2,11 @@ import asyncio
 import logging
 import traceback
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file for local development
+load_dotenv()
+
 from collections import defaultdict
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse

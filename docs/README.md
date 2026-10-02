@@ -2,7 +2,7 @@
 
 TutorGebra AI is an automated, multilingual, interactive geometry and mathematics tutor. 
 
-You provide a mathematical exercise in natural language, and the system uses **Gemini 2.5 Flash** to break it down into a pedagogical step-by-step lesson plan. It then renders a beautifully integrated **Interactive GeoGebra Player** right in your browser, drawing the exercise step-by-step while a native **Text-to-Speech (TTS)** engine reads the mathematical explanations out loud in your preferred language and accent!
+You provide a mathematical exercise in natural language, and the system uses **OpenRouter** to route your requests to powerful AI models (like Google's latest Gemini) to break it down into a pedagogical step-by-step lesson plan. It then renders a beautifully integrated **Interactive GeoGebra Player** right in your browser, drawing the exercise step-by-step while a native **Text-to-Speech (TTS)** engine reads the mathematical explanations out loud in your preferred language and accent!
 
 ## ✨ Features
 - **Embedded Interactive Player:** No external windows required! Watch the math unfold in a fully interactive embedded GeoGebra applet with Play, Pause, and Replay controls.
@@ -17,11 +17,11 @@ You provide a mathematical exercise in natural language, and the system uses **G
 
 To run this project, you will need:
 - **Python 3.12+**
-- **Google Gemini API Key** (You can get one for free at Google AI Studio)
+- **OpenRouter API Key** (You can get one for free at [openrouter.ai/keys](https://openrouter.ai/keys))
 
 ### Libraries Used:
 - `fastapi` & `uvicorn` (Web server & REST API)
-- `google-genai` (Official Gemini SDK for AI reasoning)
+- `openrouter` (High-availability SDK for auto-routing to AI models)
 - `gTTS` (Google Text-to-Speech synthesis)
 - `Vue 3` & `TailwindCSS` (Frontend framework and styling)
 - `GeoGebra JS API` (Interactive math rendering)
@@ -58,7 +58,7 @@ We've included automated setup scripts that create a virtual environment, instal
 ## 🧠 How to Use
 
 1. Once the web interface is open, if you don't know how to get an API Key, click on the **"¿Cómo obtenerla?"** button for a quick tutorial.
-2. Paste your **Gemini API Key** in the designated field.
+2. Paste your **OpenRouter API Key** in the designated field (or leave it blank to use the server's default free key).
 3. Select your preferred **Teacher Voice / Accent**.
 4. Type an exercise prompt in your language of choice. 
    *Example: "Draw a right triangle, calculate its hypotenuse using the Pythagorean theorem, and draw a circumscribed circle."*
@@ -67,23 +67,19 @@ We've included automated setup scripts that create a virtual environment, instal
 
 ## ⚠️ Potential API Key Errors (And How to Fix Them)
 
-Since this project connects directly to Google's artificial intelligence brain (Gemini) using your own free API Key, you might occasionally encounter some error messages, especially during heavy usage. Here is what they mean and how to handle them, no programming knowledge required:
+Since this project connects to a high-availability AI router (**OpenRouter**) using your API Key, you might occasionally encounter some error messages. Here is what they mean and how to handle them:
 
-### 1. "Quota Exceeded" or "Too Many Requests" (Error 429)
-* **Why it happens:** Google's free API Keys have limits to prevent abuse (usually around 15 requests per minute or 1,500 per day). If you ask for too many exercises too quickly, Google temporarily "hits the brakes."
-* **What to do:** Simply **wait a couple of minutes**. The per-minute limit resets very fast. If you hit the daily limit (very unlikely for a single teacher), you will have to wait until the next day, or generate a new API Key using a different Google account.
+### 1. "This request requires more credits"
+* **Why it happens:** OpenRouter checks if your account has enough funds/credits to cover the *maximum* possible tokens a model could generate before processing the request. Even if the models are virtually free, if your account balance is strictly $0.00 and you haven't enabled free tier limits, it might block the request.
+* **What to do:** TutorGebra caps tokens to `2500` to prevent this, but if you still see it, ensure you have generated a valid key at `openrouter.ai/keys`. If using the free tier, ensure you are not hitting the rate limits of the free models.
 
-### 2. "Service Unavailable / Overloaded" (Error 500 or 503)
-* **Why it happens:** Sometimes, millions of people globally are using Google Gemini's models at the exact same time, and their physical servers become temporarily saturated. This is not your computer's or your API Key's fault.
-* **What to do:** Think of it like a global traffic jam. Close the error message, wait 30 seconds to a minute, and click "Generate Lesson" again. The traffic usually clears up quickly.
+### 2. "Service Unavailable" (Error 503)
+* **Why it happens:** OpenRouter has an automatic **Fallback System**. If Google Gemini servers are saturated, it will automatically try to route you to Claude 3.5 Haiku, then GPT-4o-Mini, and so on. If *all* backup models are saturated (which is incredibly rare), you will get this error.
+* **What to do:** Wait 30 seconds and click "Generate Lesson" again. The traffic jam will clear up.
 
-### 3. "Invalid API Key" (Error 400 or 401)
-* **Why it happens:** When copying and pasting your key from Google AI Studio, you might have missed a letter, accidentally copied a blank space at the beginning/end, or pasted something else by mistake.
-* **What to do:** Delete the key you pasted in TutorGebra. Go back to Google AI Studio, use the official "Copy" button (the overlapping pages icon), and paste it again carefully.
-
-### 4. "Connection Failed" or "Network Error"
-* **Why it happens:** Your computer lost internet connection right at that second, or your school/university's firewall/antivirus is blocking the connection to Google's servers.
-* **What to do:** Check your Wi-Fi or try using your phone's cellular data hotspot to confirm if the school network is actively blocking the app.
+### 3. "Invalid API Key" (Error 401)
+* **Why it happens:** When copying and pasting your key from OpenRouter, you might have missed a letter or accidentally copied a blank space at the beginning. OpenRouter keys always start with `sk-or-v1-`.
+* **What to do:** Delete the key you pasted in TutorGebra, go back to OpenRouter, copy it again, and paste it carefully.
 
 ---
 
