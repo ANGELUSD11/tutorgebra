@@ -5,6 +5,8 @@ createApp({
         const apiKey = ref('');
         const showApiKeyModal = ref(false);
         const prompt = ref('');
+        const imageBase64 = ref(null);
+        const imagePreview = ref(null);
         const ttsVoice = ref('auto');
         const edgeVoice = ref('es-MX-JorgeNeural');
         const useEdgeTts = ref(false);
@@ -58,6 +60,26 @@ createApp({
 
         const toggleFullscreen = () => {
             isFullscreen.value = !isFullscreen.value;
+        };
+
+        const handleImageUpload = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            imagePreview.value = URL.createObjectURL(file);
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                const base64 = dataUrl.split(',')[1];
+                imageBase64.value = base64;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        const removeImage = () => {
+            imagePreview.value = null;
+            imageBase64.value = null;
         };
 
         const initGeoGebra = () => {
@@ -121,7 +143,8 @@ createApp({
                         prompt: prompt.value,
                         api_key: apiKey.value,
                         voice: useEdgeTts.value ? null : ttsVoice.value,
-                        edge_voice: useEdgeTts.value ? edgeVoice.value : null
+                        edge_voice: useEdgeTts.value ? edgeVoice.value : null,
+                        image: imageBase64.value
                     })
                 });
                 
@@ -330,6 +353,7 @@ createApp({
 
         return { 
             isDark, toggleDarkMode, showApiKeyModal, apiKey, prompt, ttsVoice, 
+            imageBase64, imagePreview, handleImageUpload, removeImage,
             useEdgeTts, edgeVoice, toggleEdgeTts,
             loading, loadingMessage, loadingPercent, error, steps, startTutor,
             appletLoaded, isPlaying, currentStep, togglePlay, resetLesson, nextStep,
