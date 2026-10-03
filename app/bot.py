@@ -6,8 +6,8 @@ from gtts import gTTS
 logger = logging.getLogger('TutorGebraBot')
 
 def _generate_single_audio(step, lang, tld, session_id):
-    cmd = step["command"]
-    text = step["speech"]
+    cmd = step.get("command", "")
+    text = step.get("speech", "")
     if not text:
         return step
         
@@ -37,8 +37,8 @@ def _generate_single_audio(step, lang, tld, session_id):
 
 async def _generate_single_edge_audio(step, voice, session_id):
     import edge_tts
-    cmd = step["command"]
-    text = step["speech"]
+    cmd = step.get("command", "")
+    text = step.get("speech", "")
     if not text:
         return step
         
