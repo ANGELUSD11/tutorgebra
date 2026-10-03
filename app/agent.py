@@ -45,7 +45,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
             messages=messages,
             response_format={'type': 'json_object'},
             temperature=0.7,
-            max_tokens=8000
+            max_tokens=1500
         )
         logger.info(f"OpenRouter successfully routed the request to model: {response.model}")
     except Exception as e:
@@ -54,9 +54,24 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
     
     try:
         content = response.choices[0].message.content
-        data = json.loads(content)
+        
+        clean_content = content.strip()
+        if clean_content.startswith("```json"):
+            clean_content = clean_content[7:]
+        elif clean_content.startswith("```"):
+            clean_content = clean_content[3:]
+            
+        if clean_content.endswith("```"):
+            clean_content = clean_content[:-3]
+            
+        clean_content = clean_content.strip()
+        
+        data = json.loads(clean_content)
         return data
-    except Exception as e:
-        logger.error(f"Error parsing JSON response: {e}")
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON Parsing Error: {e}")
         logger.error(f"Raw response: {content if 'content' in locals() else 'None'}")
-        raise
+        raise Exception("The response was cut off or the math problem was too broad/long. Please try asking for a shorter exercise, or break it down into smaller parts.")
+    except Exception as e:
+        logger.error(f"General Error parsing response: {e}")
+        raise Exception(f"AI Processing Error: {e}")
