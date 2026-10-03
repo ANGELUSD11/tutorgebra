@@ -139,12 +139,19 @@ async def run_exercise(req: Request):
             session_id = str(uuid.uuid4())
             # Run Gemini in thread to prevent blocking loop
             data = await asyncio.to_thread(generate_geogebra_script, prompt, api_key, image_b64)
-            steps = data.get("steps", [])
-            if isinstance(steps, dict):
-                steps = [steps]
-            elif isinstance(steps, str):
-                steps = []
+            raw_steps = data.get("steps", [])
+            if isinstance(raw_steps, dict):
+                raw_steps = [raw_steps]
+            elif not isinstance(raw_steps, list):
+                raw_steps = []
                 
+            steps = []
+            for s in raw_steps:
+                if isinstance(s, dict):
+                    steps.append(s)
+                elif isinstance(s, str):
+                    steps.append({"command": "", "speech": s})
+                    
             lang = data.get("language", "en")
             tld = "com"
             
