@@ -86,7 +86,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
         {"role": "user", "content": user_content}
     ]
     
-    max_retries = 2
+    max_retries = 3
     for attempt in range(max_retries):
         try:
             logger.info(f"Generation attempt {attempt + 1} with target models: {target_models}")
@@ -115,16 +115,24 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
             
         except json.JSONDecodeError as e:
             logger.error(f"JSON Parsing Error on attempt {attempt + 1}: {e}")
-            if attempt < max_retries - 1:
-                logger.info("JSON was truncated or malformed. Forcing fallback to gpt-4o-mini for the next attempt...")
+            if attempt == 0:
+                logger.info("Attempt 1 failed. Forcing fallback to gpt-4o for the next attempt...")
+                target_models = ['openai/gpt-4o']
+                continue
+            elif attempt == 1:
+                logger.info("Attempt 2 failed. Forcing fallback to gpt-4o-mini for the final attempt...")
                 target_models = ['openai/gpt-4o-mini']
                 continue
+                
             logger.error(f"Raw response: {content if 'content' in locals() else 'None'}")
             raise Exception("The response was repeatedly cut off. Please try asking for a shorter exercise, or check your API credits.")
             
         except Exception as e:
             logger.error(f"General Error: {e}")
-            if attempt < max_retries - 1:
+            if attempt == 0:
+                target_models = ['openai/gpt-4o']
+                continue
+            elif attempt == 1:
                 target_models = ['openai/gpt-4o-mini']
                 continue
             raise Exception(f"AI Processing Error: {e}")
