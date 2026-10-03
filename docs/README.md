@@ -1,5 +1,7 @@
 # TutorGebra AI 📐🤖
 
+![TutorGebra Interface](../static/images/home.png)
+
 TutorGebra AI is an automated, multilingual, interactive geometry and mathematics tutor. 
 
 You provide a mathematical exercise in natural language, and the system uses **OpenRouter** to route your requests to powerful AI models (like Google's latest Gemini) to break it down into a pedagogical step-by-step lesson plan. It then renders a beautifully integrated **Interactive GeoGebra Player** right in your browser, drawing the exercise step-by-step while a native **Text-to-Speech (TTS)** engine reads the mathematical explanations out loud in your preferred language and accent!
