@@ -72,7 +72,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                 logger.info("Advanced problem detected! Routing text to Claude Sonnet 5.5 and stripping image to save Vision costs.")
                 # Replace the image with the extracted text!
                 user_content = [
-                    {"type": "text", "text": f"User Request: {prompt}\n\n[Extracted Mathematical Content from User's Image]:\n{extracted}\n\nSolve this advanced problem step-by-step."}
+                    {"type": "text", "text": f"User Request: {prompt}\n\n[Extracted Mathematical Content from User's Image]:\n{extracted}\n\n(CRITICAL: Solve this advanced problem step-by-step, but you MUST provide all 'speech' explanations in the EXACT SAME LANGUAGE as the User Request above)."}
                 ]
                 target_models = ['anthropic/claude-sonnet-5.5', 'openai/gpt-4o']
             else:
