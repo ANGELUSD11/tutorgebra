@@ -38,9 +38,9 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
         response = client.chat.send(
             # OpenRouter Fallback system limits the array to 3 items max.
             models=[
-                'openai/gpt-6-luna',
+                'openai/gpt-4o',
                 'anthropic/claude-sonnet-5.5',
-                'openai/o3-mini'
+                'openai/gpt-4o-mini'
             ],
             messages=messages,
             temperature=0.7,
