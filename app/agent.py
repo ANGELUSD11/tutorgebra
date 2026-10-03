@@ -36,11 +36,9 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
     
     try:
         response = client.chat.send(
-            # OpenRouter Fallback system: If the first model is busy or down, it tries the second, and so on.
+            # OpenRouter Fallback system limits the array to 3 items max.
             models=[
-                'google/gemini-3.8-flash', 
-                'google/gemini-3.7-flash',
-                'google/gemini-2.5-flash',
+                'google/gemini-3.8-flash',
                 'openai/gpt-4o-mini',
                 'anthropic/claude-3.5-haiku'
             ],
