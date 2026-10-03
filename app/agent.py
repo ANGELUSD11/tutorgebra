@@ -45,8 +45,9 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
             messages=messages,
             response_format={'type': 'json_object'},
             temperature=0.7,
-            max_completion_tokens=2500
+            max_tokens=8000
         )
+        logger.info(f"OpenRouter successfully routed the request to model: {response.model}")
     except Exception as e:
         logger.error(f"OpenRouter API Error: {e}")
         raise Exception(f"AI Connection Error: {e}")
