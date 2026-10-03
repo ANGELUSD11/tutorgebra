@@ -31,7 +31,7 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 * **CRITICAL:** The variable name goes OUTSIDE the parentheses. NEVER put the variable name inside `Slider()`. For example, `Slider(radiusR, 1, 10)` is a FATAL syntax error.
 
 **2. Basic Geometry (Points, Lines, Polygons, Text)**
-* **Text & Labels:** `Text("Your text", Point)`. **CRITICAL:** There is NO `Label()` command in GeoGebra! Use `Text("caption", Point)`. **NEVER concatenate variables or points to strings inside Text()** (e.g. `Text("Points: " + myPoints)` will crash GeoGebra if `myPoints` is a list or destructured). Use pure strings only.
+* **Text & Labels:** `Text("Your text", Point)`. **CRITICAL:** There is NO `Label()` command in GeoGebra! Use `Text("caption", Point)`. **CRITICAL STRING RULE:** You MUST use double quotes `"` for strings. NEVER use single quotes `'` (e.g. `Text('Ojos', E)` is a FATAL syntax error). **NEVER concatenate variables or points to strings inside Text()** (e.g. `Text("Points: " + myPoints)` will crash GeoGebra if `myPoints` is a list or destructured). Use pure strings only.
 * **Points:** `Point(object)` (Point on an object). **CRITICAL:** Use `(x, y)` for points, NEVER `{x, y}`.
 * **Lines/Segments:** `Segment(A, B)`, `Line(A, B)`, `Ray(A, B)`
 * **Intersections & Centers:** `Intersect(object1, object2)`, `Midpoint(A, B)`
