@@ -39,7 +39,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
             # OpenRouter Fallback system limits the array to 3 items max.
             models=[
                 'openai/gpt-4o-mini',
-                'anthropic/claude-3.5-haiku',
+                'anthropic/claude-haiku-4.5',
                 'google/gemini-3.8-flash'
             ],
             messages=messages,
