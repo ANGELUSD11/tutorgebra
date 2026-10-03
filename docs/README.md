@@ -65,21 +65,29 @@ We've included automated setup scripts that create a virtual environment, instal
 5. Click on **"Generar Lección"**.
 6. Enjoy the show! Use the **Player Controls** to pause, advance to the next step, or restart the explanation at your own pace. Click the **Fullscreen** button on the top right of the board to maximize your focus.
 
-## ⚠️ Potential API Key Errors (And How to Fix Them)
+## 🏗️ Advanced AI Architecture (2026 Update)
 
-Since this project connects to a high-availability AI router (**OpenRouter**) using your API Key, you might occasionally encounter some error messages. Here is what they mean and how to handle them:
+TutorGebra uses a state-of-the-art **Smart Content Routing** system to maximize mathematical accuracy while minimizing API costs.
 
-### 1. "This request requires more credits"
-* **Why it happens:** OpenRouter checks if your account has enough funds/credits to cover the *maximum* possible tokens a model could generate before processing the request. Even if the models are virtually free, if your account balance is strictly $0.00 and you haven't enabled free tier limits, it might block the request.
-* **What to do:** TutorGebra caps tokens to `2500` to prevent this, but if you still see it, ensure you have generated a valid key at `openrouter.ai/keys`. If using the free tier, ensure you are not hitting the rate limits of the free models.
+### 1. Smart Content Routing (OCR & Classification)
+When a user submits a prompt (with or without an image), the system does **not** send it blindly to an expensive AI. Instead:
+1. **The Gatekeeper (`gpt-4o-mini`)**: This ultra-cheap, fast model intercepts the request. If an image is provided, it performs flawlessly cheap OCR to extract mathematical text.
+2. **Difficulty Classification**: It determines if the problem is `basic` (high school algebra/drawings) or `advanced` (university-level physics, complex calculus, abstract algebra).
+3. **Dynamic Routing**:
+   - If `basic`: The system saves money by keeping the request with `gpt-4o-mini`, which excels at traditional algebra and explicit geometry.
+   - If `advanced`: The system **strips the heavy image** from memory (saving massive Vision API costs), constructs a pure-text prompt with the extracted math, and routes it to heavy-hitters like **`openai/gpt-4o`** or **`anthropic/claude-sonnet-5.5`**.
 
-### 2. "Service Unavailable" (Error 503)
-* **Why it happens:** OpenRouter has an automatic **Fallback System**. If Google Gemini servers are saturated, it will automatically try to route you to Claude 3.5 Haiku, then GPT-4o-Mini, and so on. If *all* backup models are saturated (which is incredibly rare), you will get this error.
-* **What to do:** Wait 30 seconds and click "Generate Lesson" again. The traffic jam will clear up.
+### 2. Auto-Recovery Shield (Retry Loop)
+Due to API limits, 10-second timeouts on OpenRouter, or insufficient prepaid funds, advanced models can occasionally fail or return truncated `JSONDecodeError` responses.
+To prevent the frontend from crashing, TutorGebra implements a resilient **3-Tier Retry Loop**:
+- **Attempt 1**: `anthropic/claude-sonnet-5.5` (The genius math physicist).
+- **Attempt 2**: If Claude times out (10s limit) or truncates, it seamlessly falls back to `openai/gpt-4o` (Lightning fast, exceptional spatial reasoning).
+- **Attempt 3**: If out of credits (HTTP 402), it suppresses the error and falls back to `openai/gpt-4o-mini` to ensure the user ALWAYS gets a lesson without the server crashing.
 
-### 3. "Invalid API Key" (Error 401)
-* **Why it happens:** When copying and pasting your key from OpenRouter, you might have missed a letter or accidentally copied a blank space at the beginning. OpenRouter keys always start with `sk-or-v1-`.
-* **What to do:** Delete the key you pasted in TutorGebra, go back to OpenRouter, copy it again, and paste it carefully.
+### 3. Strict Mathematical Syntax Rules
+To prevent catastrophic GeoGebra Applet crashes caused by LLMs "knowing too much" standard math notation, TutorGebra injects critical overrides:
+- **Forced Uppercase Points**: Variables like `tangentPoint` or `z1` (common in Complex Analysis) evaluate as Vectors in GeoGebra and crash functions like `Polygon()`. The system strictly forces the AI to use `TangentPoint` or `Z1`.
+- **Banned Manual Calculus**: Models are forbidden from manually calculating slope derivatives to draw lines; they are forced to use GeoGebra's native `Tangent(Point, Function)` engine to prevent spatial hallucinations.
 
 ---
 
