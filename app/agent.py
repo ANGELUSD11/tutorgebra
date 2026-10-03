@@ -100,6 +100,10 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
             
             content = response.choices[0].message.content
             
+            if content is None:
+                logger.error(f"Model {response.model} returned empty/None content. This may be a safety refusal or API glitch.")
+                content = ""
+                
             clean_content = content.strip()
             if clean_content.startswith("```json"): clean_content = clean_content[7:]
             elif clean_content.startswith("```"): clean_content = clean_content[3:]
