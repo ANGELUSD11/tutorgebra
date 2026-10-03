@@ -86,38 +86,41 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
         {"role": "user", "content": user_content}
     ]
     
-    try:
-        response = client.chat.send(
-            models=target_models,
-            messages=messages,
-            temperature=0.7,
-            max_tokens=1200
-        )
-        logger.info(f"OpenRouter successfully routed the request to model: {response.model}")
-    except Exception as e:
-        logger.error(f"OpenRouter API Error: {e}")
-        raise Exception(f"AI Connection Error: {e}")
-    
-    try:
-        content = response.choices[0].message.content
-        
-        clean_content = content.strip()
-        if clean_content.startswith("```json"):
-            clean_content = clean_content[7:]
-        elif clean_content.startswith("```"):
-            clean_content = clean_content[3:]
+    max_retries = 2
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Generation attempt {attempt + 1} with target models: {target_models}")
+            response = client.chat.send(
+                models=target_models,
+                messages=messages,
+                temperature=0.7,
+                max_tokens=1200
+            )
+            logger.info(f"OpenRouter successfully routed the request to model: {response.model}")
             
-        if clean_content.endswith("```"):
-            clean_content = clean_content[:-3]
+            content = response.choices[0].message.content
             
-        clean_content = clean_content.strip()
-        
-        data = json.loads(clean_content)
-        return data
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON Parsing Error: {e}")
-        logger.error(f"Raw response: {content if 'content' in locals() else 'None'}")
-        raise Exception("The response was cut off or the math problem was too broad/long. Please try asking for a shorter exercise, or break it down into smaller parts.")
-    except Exception as e:
-        logger.error(f"General Error parsing response: {e}")
-        raise Exception(f"AI Processing Error: {e}")
+            clean_content = content.strip()
+            if clean_content.startswith("```json"): clean_content = clean_content[7:]
+            elif clean_content.startswith("```"): clean_content = clean_content[3:]
+            if clean_content.endswith("```"): clean_content = clean_content[:-3]
+            clean_content = clean_content.strip()
+            
+            data = json.loads(clean_content)
+            return data
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON Parsing Error on attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                logger.info("JSON was truncated or malformed. Forcing fallback to gpt-4o-mini for the next attempt...")
+                target_models = ['openai/gpt-4o-mini']
+                continue
+            logger.error(f"Raw response: {content if 'content' in locals() else 'None'}")
+            raise Exception("The response was repeatedly cut off. Please try asking for a shorter exercise, or check your API credits.")
+            
+        except Exception as e:
+            logger.error(f"General Error: {e}")
+            if attempt < max_retries - 1:
+                target_models = ['openai/gpt-4o-mini']
+                continue
+            raise Exception(f"AI Processing Error: {e}")
