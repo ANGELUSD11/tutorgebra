@@ -43,7 +43,6 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                 'openai/o3-mini'
             ],
             messages=messages,
-            response_format={'type': 'json_object'},
             temperature=0.7,
             max_tokens=3000
         )

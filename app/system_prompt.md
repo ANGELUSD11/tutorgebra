@@ -80,7 +80,7 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 
 Output EXACTLY a JSON object with this schema and NOTHING else.
 {
-  "language": "en", // The 2-letter ISO language code detected (e.g., 'en', 'es', 'fr')
+  "language": "en",
   "steps": [
     {
       "command": "A = (0,0)",
