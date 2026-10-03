@@ -29,6 +29,58 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
         })
         logger.info("Included image in the prompt")
         
+    target_models = [
+        'openai/gpt-4o',
+        'anthropic/claude-sonnet-5.5',
+        'openai/gpt-4o-mini'
+    ]
+
+    if image_b64:
+        try:
+            logger.info("Performing preliminary OCR and Difficulty Classification with gpt-4o-mini...")
+            ocr_messages = [
+                {
+                    "role": "system",
+                    "content": "You are a Math OCR and Classifier. Read the image and prompt. 1. Extract all text/math perfectly. 2. Classify difficulty. If it's university-level (physics, advanced calculus, abstract algebra, PDEs, etc.), output 'advanced'. If high-school level or simple drawings, output 'basic'. Return EXACTLY JSON: {\"extracted_text\": \"...\", \"difficulty\": \"basic\" | \"advanced\"}"
+                },
+                {"role": "user", "content": user_content}
+            ]
+            
+            # Use cheap Vision model for OCR
+            ocr_resp = client.chat.send(
+                models=['openai/gpt-4o-mini'],
+                messages=ocr_messages,
+                response_format={'type': 'json_object'},
+                temperature=0.1,
+                max_tokens=1000
+            )
+            
+            ocr_content = ocr_resp.choices[0].message.content
+            clean_ocr = ocr_content.strip()
+            if clean_ocr.startswith("```json"): clean_ocr = clean_ocr[7:]
+            elif clean_ocr.startswith("```"): clean_ocr = clean_ocr[3:]
+            if clean_ocr.endswith("```"): clean_ocr = clean_ocr[:-3]
+            clean_ocr = clean_ocr.strip()
+            
+            ocr_data = json.loads(clean_ocr)
+            difficulty = ocr_data.get("difficulty", "basic").lower()
+            extracted = ocr_data.get("extracted_text", "")
+            
+            logger.info(f"Problem classified as: {difficulty}")
+            
+            if difficulty == "advanced":
+                logger.info("Advanced problem detected! Routing text to Claude Sonnet 5.5 and stripping image to save Vision costs.")
+                # Replace the image with the extracted text!
+                user_content = [
+                    {"type": "text", "text": f"User Request: {prompt}\n\n[Extracted Mathematical Content from User's Image]:\n{extracted}\n\nSolve this advanced problem step-by-step."}
+                ]
+                target_models = ['anthropic/claude-sonnet-5.5', 'openai/gpt-4o']
+            else:
+                logger.info("Basic problem detected. Proceeding normally.")
+                
+        except Exception as e:
+            logger.warning(f"Smart Routing failed, falling back to standard pipeline: {e}")
+
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_content}
@@ -36,12 +88,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
     
     try:
         response = client.chat.send(
-            # OpenRouter Fallback system limits the array to 3 items max.
-            models=[
-                'openai/gpt-4o',
-                'anthropic/claude-sonnet-5.5',
-                'openai/gpt-4o-mini'
-            ],
+            models=target_models,
             messages=messages,
             temperature=0.7,
             max_tokens=3000
