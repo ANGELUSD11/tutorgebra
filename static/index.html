@@ -214,6 +214,16 @@
                     <div v-if="error" class="mt-4 p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm border border-red-200 dark:border-red-800">
                         <i class="fa-solid fa-triangle-exclamation mr-2"></i> {{ error }}
                     </div>
+
+                    <!-- Meta Information Badge -->
+                    <div v-if="meta.model" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-lg text-xs font-medium border border-blue-200 dark:border-blue-800 flex justify-between items-center transition-all">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-microchip"></i> Model: {{ meta.model }}
+                        </span>
+                        <span class="px-2 py-1 bg-blue-200 dark:bg-blue-800 rounded-full text-[10px] uppercase tracking-wider">
+                            <i class="fa-solid fa-layer-group"></i> {{ meta.difficulty }}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Lesson Player Controls -->

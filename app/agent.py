@@ -110,6 +110,10 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
             clean_content = clean_content.strip()
             
             data = json.loads(clean_content)
+            data["_meta"] = {
+                "difficulty": locals().get("difficulty", "basic"),
+                "model": response.model
+            }
             return data
             
         except json.JSONDecodeError as e:

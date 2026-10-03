@@ -16,6 +16,7 @@ createApp({
         const loadingPercent = ref(0);
         const error = ref('');
         const steps = ref([]);
+        const meta = ref({});
         const sessionId = ref(null);
         
         const appletLoaded = ref(false);
@@ -125,6 +126,7 @@ createApp({
             loading.value = true;
             error.value = '';
             steps.value = [];
+            meta.value = {};
             sessionId.value = null;
             pauseLesson();
             currentStep.value = 0;
@@ -190,6 +192,7 @@ createApp({
                                 completedSuccessfully = true;
                                 steps.value = data.steps;
                                 sessionId.value = data.session_id;
+                                if (data.meta) meta.value = data.meta;
                                 // Check if GeoGebra finished loading
                                 const checkAndPlay = setInterval(() => {
                                     if (appletLoaded.value) {
@@ -355,7 +358,7 @@ createApp({
             isDark, toggleDarkMode, showApiKeyModal, apiKey, prompt, ttsVoice, 
             imageBase64, imagePreview, handleImageUpload, removeImage,
             useEdgeTts, edgeVoice, toggleEdgeTts,
-            loading, loadingMessage, loadingPercent, error, steps, startTutor,
+            loading, loadingMessage, loadingPercent, error, steps, meta, startTutor,
             appletLoaded, isPlaying, currentStep, togglePlay, resetLesson, nextStep,
             isFullscreen, toggleFullscreen, currentTypedText, volume
         };

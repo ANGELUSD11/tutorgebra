@@ -180,7 +180,7 @@ async def run_exercise(req: Request):
                 yield f"data: {json.dumps({'status': 'progress', 'message': f'Synthesizing audio step {completed}/{total}...', 'percent': percent})}\n\n"
             
             if not await req.is_disconnected():
-                yield f"data: {json.dumps({'status': 'done', 'steps': steps, 'session_id': session_id})}\n\n"
+                yield f"data: {json.dumps({'status': 'done', 'steps': steps, 'session_id': session_id, 'meta': data.get('_meta', {})})}\n\n"
         except Exception as e:
             logger.error("Critical error in bot execution:")
             logger.error(traceback.format_exc())
