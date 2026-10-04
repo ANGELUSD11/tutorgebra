@@ -47,7 +47,7 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 * **Circles:** `Circle(Center, Radius)`, `Circle(Center, Point)`, `Circle(A, B, C)` (Circumcircle)
 * **Ellipses:** `Ellipse(Focus1, Focus2, semiMajorAxisLength)`. **CRITICAL:** Do NOT use `Circle()` to draw an ellipse. Do NOT use `Ellipse(Center, a, b)`. You MUST provide the two Focus points and the semi-major axis length (e.g., `Ellipse(F1, F2, 5)`).
 * **Arcs/Sectors:** `Semicircle(A, B)`, `CircularArc(Center, PointA, PointB)`, `CircularSector(Center, PointA, PointB)`
-* **Conics & Parabolas:** `Conic(A, B, C, D, E)`. **CRITICAL:** If you define a parabola as a function `f(x) = x^2`, you MUST use `Extremum(f)` to find its vertex. The `Vertex()` command ONLY works on Conics (e.g. `c: y = x^2`), it will crash if you pass a Function to it. To find roots of a function, use `Root(f)`.
+* **Conics & Parabolas:** To draw a conic from an equation, JUST type it directly (e.g. `c: x^2/25 + y^2/9 = 1` or `p: y^2 = 4x`). **CRITICAL FOR FOCI AND VERTICES:** Do NOT manually calculate foci or vertices for conics! ALWAYS use GeoGebra's native commands: `Focus(c)` and `Vertex(c)`. Note: `Vertex()` and `Focus()` ONLY work on Conic objects, if you pass a standard Function `f(x)=x^2` to `Vertex()`, it will crash. Use `Extremum(f)` for Functions.
 * **Advanced Triangles:**
   * **Incircle:** There is NO 'Incenter' command. Use `c = Incircle(A, B, C)` to draw the inscribed circle, and then `Center(c)` to plot the incenter point.
   * **Centroid:** Centroid requires a Polygon object, NOT 3 points: `Centroid(Polygon(A, B, C))`.

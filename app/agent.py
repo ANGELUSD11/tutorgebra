@@ -38,7 +38,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
         ocr_messages = [
             {
                 "role": "system",
-                "content": "You are a Math Classifier. Read the prompt (and image if any). 1. If there's an image, extract all text/math. 2. Classify difficulty. If it's university-level (physics, advanced calculus, abstract algebra, PDEs, etc.) or requires complex spatial reasoning, output 'advanced'. If high-school level or simple shapes, output 'basic'. Return EXACTLY JSON: {\"extracted_text\": \"...\", \"difficulty\": \"basic\" | \"advanced\"}"
+                "content": "You are a Math Classifier. Read the prompt (and image if any). 1. If there's an image, extract all text/math. 2. Classify difficulty. If it's university-level (physics, advanced calculus, abstract algebra, PDEs, etc.), requires complex spatial reasoning, or involves Analytical Geometry (ellipses, parabolas, conics), output 'advanced'. If basic arithmetic or simple elementary school shapes, output 'basic'. Return EXACTLY JSON: {\"extracted_text\": \"...\", \"difficulty\": \"basic\" | \"advanced\"}"
             },
             {"role": "user", "content": user_content}
         ]
