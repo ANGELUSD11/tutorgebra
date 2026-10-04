@@ -35,7 +35,7 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 
 **2. Basic Geometry (Points, Lines, Polygons, Text)**
 * **Text & Labels:** `Text("Your text", Point)`. **CRITICAL:** There is NO `Label()` command in GeoGebra! Use `Text("caption", Point)`. **CRITICAL STRING RULE:** You MUST use double quotes `"` for strings. NEVER use single quotes `'` (e.g. `Text('Ojos', E)` is a FATAL syntax error). **NEVER concatenate variables or points to strings inside Text()** (e.g. `Text("Points: " + myPoints)` will crash GeoGebra if `myPoints` is a list or destructured). Use pure strings only.
-* **Points:** `Point(object)` (Point on an object). **CRITICAL:** Use `(x, y)` for points, NEVER `{x, y}`.
+* **Points:** To define a point, just write `A = (x, y)`. **CRITICAL:** NEVER use `Point(A)` if `A` is already a coordinate tuple. The `Point(object)` command is ONLY for placing a new point on a path (like a line). Doing `Point((1,2))` or `Point(V)` will crash GeoGebra. Just use `A = (x, y)` directly. Use `(x, y)` for points, NEVER `{x, y}`.
 * **Lines/Segments:** `Segment(A, B)`, `Line(A, B)`, `Ray(A, B)`
 * **Intersections & Centers:** `Intersect(object1, object2)`, `Midpoint(A, B)`
 * **Advanced Lines:** `PerpendicularLine(Point, Line)`, `ParallelLine(Point, Line)`, `PerpendicularBisector(A, B)`, `AngleBisector(A, B, C)`
