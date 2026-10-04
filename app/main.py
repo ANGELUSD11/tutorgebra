@@ -131,6 +131,7 @@ async def run_exercise(req: Request):
     voice = body.get("voice", "auto")
     edge_voice = body.get("edge_voice")
     image_b64 = body.get("image")
+    selected_model = body.get("selected_model", "auto")
         
     async def event_stream():
         try:
@@ -138,7 +139,7 @@ async def run_exercise(req: Request):
             
             session_id = str(uuid.uuid4())
             # Run Gemini in thread to prevent blocking loop
-            data = await asyncio.to_thread(generate_geogebra_script, prompt, api_key, image_b64)
+            data = await asyncio.to_thread(generate_geogebra_script, prompt, api_key, image_b64, selected_model)
             raw_steps = data.get("steps", [])
             if isinstance(raw_steps, dict):
                 raw_steps = [raw_steps]

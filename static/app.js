@@ -10,6 +10,7 @@ createApp({
         const ttsVoice = ref('auto');
         const edgeVoice = ref('es-MX-JorgeNeural');
         const useEdgeTts = ref(false);
+        const selectedModel = ref('auto');
         const toggleEdgeTts = () => { useEdgeTts.value = !useEdgeTts.value; };
         const loading = ref(false);
         const loadingMessage = ref('Iniciando...');
@@ -146,7 +147,8 @@ createApp({
                         api_key: apiKey.value,
                         voice: useEdgeTts.value ? null : ttsVoice.value,
                         edge_voice: useEdgeTts.value ? edgeVoice.value : null,
-                        image: imageBase64.value
+                        image: imageBase64.value,
+                        selected_model: selectedModel.value
                     })
                 });
                 
@@ -357,7 +359,7 @@ createApp({
         return { 
             isDark, toggleDarkMode, showApiKeyModal, apiKey, prompt, ttsVoice, 
             imageBase64, imagePreview, handleImageUpload, removeImage,
-            useEdgeTts, edgeVoice, toggleEdgeTts,
+            useEdgeTts, edgeVoice, toggleEdgeTts, selectedModel,
             loading, loadingMessage, loadingPercent, error, steps, meta, startTutor,
             appletLoaded, isPlaying, currentStep, togglePlay, resetLesson, nextStep,
             isFullscreen, toggleFullscreen, currentTypedText, volume

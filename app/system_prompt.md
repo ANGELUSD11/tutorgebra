@@ -58,7 +58,7 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 
 **5. Functions, Calculus, and Vectors**
 * **Functions:** Define functions natively: `f(x) = x^3 - 3x`.
-* **Roots and Extrema:** `Root(f)`, `Extremum(f)`, `Asymptote(f)`.
+* **Roots and Extrema:** `Root(f)`, `Extremum(f)`, `Asymptote(f)`. **CRITICAL FOR VERTICES OF FUNCTIONS:** NEVER calculate the vertex of a function manually (e.g. do NOT use `-b/(2a)`). This causes fatal Division by Zero errors when the user drags the 'a' slider to 0. ALWAYS use the native command. `Extremum(f)` returns a LIST of points, so you MUST extract it using `V1 = Element(Extremum(f), 1)`.
 * **Calculus:** `Derivative(f)`, `Integral(f, start_x, end_x)`. **CRITICAL TANGENT RULE:** NEVER calculate slopes manually to draw tangent lines. You MUST use the built-in command `Tangent(Point, Function)` or `Tangent(x_value, Function)`.
 * **Vectors:** `Vector(Point, Point)` (Creates a vector between points), `UnitVector(Vector)`.
 

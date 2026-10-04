@@ -6,7 +6,7 @@ from openrouter import OpenRouter
 
 logger = logging.getLogger('TutorGebraAgent')
 
-def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = None) -> dict:
+def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = None, selected_model: str = "auto") -> dict:
     final_api_key = api_key.strip() if api_key else os.environ.get("OPENROUTER_API_KEY")
     if not final_api_key:
         raise ValueError("OpenRouter API Key is missing. Please provide one in the UI or configure the server with OPENROUTER_API_KEY.")
@@ -29,56 +29,58 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
         })
         logger.info("Included image in the prompt")
         
-    target_models = [
-        'openai/gpt-4o-mini'
-    ]
+    target_models = ['openai/gpt-4o-mini']
+    difficulty = "manual"
 
-    try:
-        logger.info("Performing preliminary Difficulty Classification with gpt-4o-mini...")
-        ocr_messages = [
-            {
-                "role": "system",
-                "content": "You are a Math Classifier. Read the prompt (and image if any). 1. If there's an image, extract all text/math. 2. Classify difficulty. If it's university-level (physics, advanced calculus, abstract algebra, PDEs, etc.), requires complex spatial reasoning, or involves Analytical Geometry (ellipses, parabolas, conics), output 'advanced'. If basic arithmetic or simple elementary school shapes, output 'basic'. Return EXACTLY JSON: {\"extracted_text\": \"...\", \"difficulty\": \"basic\" | \"advanced\"}"
-            },
-            {"role": "user", "content": user_content}
-        ]
-        
-        ocr_resp = client.chat.send(
-            models=['openai/gpt-4o-mini'],
-            messages=ocr_messages,
-            response_format={'type': 'json_object'},
-            temperature=0.1,
-            max_tokens=1000
-        )
-        
-        ocr_content = ocr_resp.choices[0].message.content
-        clean_ocr = ocr_content.strip()
-        if clean_ocr.startswith("```json"): clean_ocr = clean_ocr[7:]
-        elif clean_ocr.startswith("```"): clean_ocr = clean_ocr[3:]
-        if clean_ocr.endswith("```"): clean_content = clean_ocr[:-3]
-        clean_ocr = clean_ocr.strip()
-        
-        ocr_data = json.loads(clean_ocr)
-        difficulty = ocr_data.get("difficulty", "basic").lower()
-        extracted = ocr_data.get("extracted_text", "")
-        
-        logger.info(f"Problem classified as: {difficulty}")
-        
-        if difficulty == "advanced":
-            logger.info("Advanced problem detected! Routing to powerful models (GPT-4o / Sonnet 5.5).")
-            if image_b64:
-                logger.info("Stripping image to save Vision costs and using extracted text.")
-                user_content = [
-                    {"type": "text", "text": f"User Request: {prompt}\n\n[Extracted Mathematical Content from User's Image]:\n{extracted}\n\n(CRITICAL: Solve this advanced problem step-by-step, but you MUST provide all 'speech' explanations in the EXACT SAME LANGUAGE as the User Request above)."}
-                ]
-            target_models = ['openai/gpt-4o', 'anthropic/claude-sonnet-5.5', 'openai/gpt-4o-mini']
-        else:
-            logger.info("Basic problem detected. Proceeding with gpt-4o-mini to save costs.")
-            # target_models remains ['openai/gpt-4o-mini']
+    if selected_model != "auto":
+        logger.info(f"User manually selected model: {selected_model}. Bypassing Smart Routing.")
+        target_models = [selected_model]
+    else:
+        try:
+            logger.info("Performing preliminary Difficulty Classification with gpt-4o-mini...")
+            ocr_messages = [
+                {
+                    "role": "system",
+                    "content": "You are a Math Classifier. Read the prompt (and image if any). 1. If there's an image, extract all text/math. 2. Classify difficulty. If it's university-level (physics, advanced calculus, abstract algebra, PDEs, etc.), requires complex spatial reasoning, or involves Analytical Geometry (ellipses, parabolas, conics), output 'advanced'. If basic arithmetic or simple elementary school shapes, output 'basic'. Return EXACTLY JSON: {\"extracted_text\": \"...\", \"difficulty\": \"basic\" | \"advanced\"}"
+                },
+                {"role": "user", "content": user_content}
+            ]
             
-    except Exception as e:
-        logger.warning(f"Smart Routing failed, falling back to standard pipeline: {e}")
-        target_models = ['openai/gpt-4o', 'anthropic/claude-sonnet-5.5', 'openai/gpt-4o-mini']
+            ocr_resp = client.chat.send(
+                models=['openai/gpt-4o-mini'],
+                messages=ocr_messages,
+                response_format={'type': 'json_object'},
+                temperature=0.1,
+                max_tokens=1000
+            )
+            
+            ocr_content = ocr_resp.choices[0].message.content
+            clean_ocr = ocr_content.strip()
+            if clean_ocr.startswith("```json"): clean_ocr = clean_ocr[7:]
+            elif clean_ocr.startswith("```"): clean_ocr = clean_ocr[3:]
+            if clean_ocr.endswith("```"): clean_content = clean_ocr[:-3]
+            clean_ocr = clean_ocr.strip()
+        
+            ocr_data = json.loads(clean_ocr)
+            difficulty = ocr_data.get("difficulty", "basic").lower()
+            extracted = ocr_data.get("extracted_text", "")
+            
+            logger.info(f"Problem classified as: {difficulty}")
+            
+            if difficulty == "advanced":
+                logger.info("Advanced problem detected! Routing to powerful models (GPT-4o / Sonnet 5.5).")
+                if image_b64:
+                    logger.info("Stripping image to save Vision costs and using extracted text.")
+                    user_content = [
+                        {"type": "text", "text": f"User Request: {prompt}\n\n[Extracted Mathematical Content from User's Image]:\n{extracted}\n\n(CRITICAL: Solve this advanced problem step-by-step, but you MUST provide all 'speech' explanations in the EXACT SAME LANGUAGE as the User Request above)."}
+                    ]
+                target_models = ['openai/gpt-4o', 'anthropic/claude-sonnet-5.5', 'openai/gpt-4o-mini']
+            else:
+                logger.info("Basic problem detected. Proceeding with gpt-4o-mini to save costs.")
+                
+        except Exception as e:
+            logger.warning(f"Smart Routing failed, falling back to standard pipeline: {e}")
+            target_models = ['openai/gpt-4o', 'anthropic/claude-sonnet-5.5', 'openai/gpt-4o-mini']
 
     messages = [
         {"role": "system", "content": system_prompt},
