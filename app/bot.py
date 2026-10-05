@@ -8,7 +8,7 @@ logger = logging.getLogger('TutorGebraBot')
 
 global_tts_semaphore = asyncio.Semaphore(4)
 
-async def _generate_single_audio(step, lang, tld, session_id, step_index=0):
+def _generate_single_audio(step, lang, tld, session_id, step_index=0):
     cmd = step.get("command", "")
     text = step.get("speech", "")
     if not text:
