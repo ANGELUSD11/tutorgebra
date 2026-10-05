@@ -135,7 +135,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                     continue
                 
             logger.error(f"Raw response: {content if 'content' in locals() else 'None'}")
-            raise Exception("The response was repeatedly cut off. Please try asking for a shorter exercise, or check your API credits.")
+            raise Exception(f"The model failed to generate a valid lesson. It may have refused the prompt due to safety filters. Last response: {content[:300] if 'content' in locals() and content else 'Empty/None'}")
             
         except Exception as e:
             logger.error(f"General Error: {e}")
