@@ -71,13 +71,13 @@
             animation: float-up linear infinite;
         }
         
-
+        [v-cloak] { display: none !important; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased min-h-screen transition-colors duration-200 custom-scrollbar">
     
-    <div id="app" class="max-w-6xl mx-auto px-4 py-8 relative z-10">
+    <div id="app" v-cloak class="max-w-6xl mx-auto px-4 py-8 relative z-10">
         <floating-background></floating-background>
         
         <!-- GitHub Link -->
