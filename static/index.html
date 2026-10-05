@@ -70,35 +70,20 @@
             z-index: 0;
             animation: float-up linear infinite;
         }
+        
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.5s ease;
+        }
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased min-h-screen transition-colors duration-200 custom-scrollbar">
     
-    <!-- Floating Math Background -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-4xl" style="left: 10%; animation-duration: 12s; animation-delay: 0s;">∫</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-3xl" style="left: 30%; animation-duration: 15s; animation-delay: 2s;">π</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-5xl" style="left: 50%; animation-duration: 14s; animation-delay: 4s;">∑</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-4xl" style="left: 70%; animation-duration: 18s; animation-delay: 1s;">√</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-6xl" style="left: 85%; animation-duration: 16s; animation-delay: 5s;">∞</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-3xl" style="left: 20%; animation-duration: 13s; animation-delay: 7s;">θ</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-4xl" style="left: 60%; animation-duration: 17s; animation-delay: 3s;">Δ</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-5xl" style="left: 40%; animation-duration: 11s; animation-delay: 8s;">Ω</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-2xl" style="left: 80%; animation-duration: 19s; animation-delay: 6s;">x²</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-3xl" style="left: 5%; animation-duration: 14s; animation-delay: 9s;">e</div>
-        <!-- Extra symbols for density -->
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-5xl" style="left: 15%; animation-duration: 16s; animation-delay: 11s;">λ</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-3xl" style="left: 35%; animation-duration: 12s; animation-delay: 13s;">β</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-4xl" style="left: 55%; animation-duration: 18s; animation-delay: 10s;">sin(x)</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-6xl" style="left: 75%; animation-duration: 14s; animation-delay: 12s;">≠</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-4xl" style="left: 90%; animation-duration: 15s; animation-delay: 14s;">φ</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-2xl" style="left: 25%; animation-duration: 17s; animation-delay: 16s;">dx</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-4xl" style="left: 45%; animation-duration: 13s; animation-delay: 15s;">α</div>
-        <div class="math-symbol text-indigo-600 dark:text-white font-serif text-3xl" style="left: 65%; animation-duration: 16s; animation-delay: 17s;">μ</div>
-    </div>
-
     <div id="app" class="max-w-6xl mx-auto px-4 py-8 relative z-10">
+        <floating-background></floating-background>
         
         <!-- GitHub Link -->
         <a href="https://github.com/ANGELUSD11/tutorgebra" target="_blank" rel="noopener noreferrer" class="absolute top-4 left-4 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors focus:outline-none" title="View source on GitHub">
@@ -141,6 +126,8 @@
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">What do you want to calculate or draw?</label>
                         <textarea v-model="prompt" rows="3" placeholder="Ex: Draw a right triangle and its circumscribed circle." 
                                   class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"></textarea>
+                        
+                        <example-carousel @select="(t) => prompt = t"></example-carousel>
                         
                         <div class="mt-3">
                             <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
@@ -351,6 +338,6 @@
         </div>
     </div>
 
-    <script src="/static/app.js?v=3"></script>
+    <script type="module" src="/static/app.js?v=3"></script>
 </body>
 </html>

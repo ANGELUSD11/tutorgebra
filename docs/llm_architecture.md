@@ -21,5 +21,9 @@ Telling an LLM "Don't do X" is often insufficient if it doesn't know what to do 
 * *Example:* Instead of just banning `AngleBisector` for polygons, the prompt provides the exact alternative: "The bisector of an interior angle at vertex V1 is simply `Line(Center, V1)`."
 * *Decision Path:* User asks for bisector -> LLM wants to use `AngleBisector` -> LLM sees `(CRITICAL)` constraint banning it -> LLM reads the constructive alternative -> LLM implements `Line(Center, V1)`.
 
+### 4. Empirical Discoveries (The `Vertex` workaround)
+During user testing, it was discovered that while the LLM hallucinates when blindly passing a Polygon to commands expecting points, you *can* successfully force commands like `Incircle()` and `AngleBisector()` to work on regular polygons by explicitly extracting the vertices dynamically using `Vertex(polygon, n)`. 
+By formatting this exact syntax requirement with a `**(CRITICAL):**` tag in the system prompt, the LLM reliably adopts the working syntax instead of inventing non-existent commands like `Polygon(center, vertex)`. This empirically proved that visual severity tagging is the most effective way to dictate LLM decision-making and restriction obedience.
+
 ## Conclusion
 By treating the LLM as a system that requires explicit, visually aggressive interruption of its statistical priors, TutorGebra achieves near 100% compliance with GeoGebra's strict, undocumented engine quirks.

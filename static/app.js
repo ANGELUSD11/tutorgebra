@@ -1,6 +1,9 @@
-const { createApp, ref, watch } = Vue;
+import FloatingBackground from './components/FloatingBackground.js';
+import ExampleCarousel from './components/ExampleCarousel.js';
 
-createApp({
+const { createApp, ref, watch } = window.Vue;
+
+const app = createApp({
     setup() {
         const apiKey = ref('');
         const showApiKeyModal = ref(false);
@@ -365,4 +368,9 @@ createApp({
             isFullscreen, toggleFullscreen, currentTypedText, volume
         };
     }
-}).mount('#app');
+});
+
+app.component('floating-background', FloatingBackground);
+app.component('example-carousel', ExampleCarousel);
+
+app.mount('#app');

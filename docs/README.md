@@ -86,6 +86,10 @@ To prevent the frontend from crashing, TutorGebra implements a resilient **3-Tie
 - **Attempt 2**: If Claude times out (10s limit) or truncates, it seamlessly falls back to `openai/gpt-4o` (Lightning fast, exceptional spatial reasoning).
 - **Attempt 3**: If out of credits (HTTP 402), it suppresses the error and falls back to `openai/gpt-4o-mini` to ensure the user ALWAYS gets a lesson without the server crashing.
 
+
+### 4. Overcoming Hallucinations with "Severity Tagging"
+During testing, we discovered that LLMs frequently hallucinate commands (like `RegularPolygon()` or `Polygon(center, vertex)`) because of their mathematical priors. We found that the **best approach to reduce LLM hallucination** is to decouple every single rule into a standalone bullet point prefixed with a highly aggressive, capitalized severity tag (e.g., `**[RULE NAME] (CRITICAL):**` or `**(FATAL ERROR):**`). This forces the attention mechanism of the LLM to prioritize the constraint over its statistical prior, ensuring it obeys strict GeoGebra web-engine quirks (like using `Vertex(polygon, n)` to explicitly extract vertices for commands like `Incircle` or `AngleBisector`).
+
 ### 3. Strict Mathematical Syntax Rules
 To prevent catastrophic GeoGebra Applet crashes caused by LLMs "knowing too much" standard math notation, TutorGebra injects critical overrides:
 - **Forced Uppercase Points**: Variables like `tangentPoint` or `z1` (common in Complex Analysis) evaluate as Vectors in GeoGebra and crash functions like `Polygon()`. The system strictly forces the AI to use `TangentPoint` or `Z1`.
