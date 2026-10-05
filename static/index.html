@@ -71,6 +71,21 @@
             animation: float-up linear infinite;
         }
         
+        .slide-fade-enter-active {
+            transition: all 0.5s ease-out;
+        }
+        .slide-fade-leave-active {
+            transition: all 0.3s ease-in;
+        }
+        .slide-fade-enter-from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        .slide-fade-leave-to {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+        
         [v-cloak] { display: none !important; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
