@@ -6,8 +6,15 @@ export default {
         </h3>
         
         <div class="h-20 sm:h-16 relative">
-            <transition name="fade" mode="out-in">
-                <p :key="currentIndex" @click="selectExample(examples[currentIndex].text)" class="text-sm text-gray-700 dark:text-gray-300 italic absolute inset-0 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" title="Click to use this example">
+            <transition 
+                enter-active-class="transition-all duration-500 ease-out"
+                enter-from-class="opacity-0 translate-y-1 sm:translate-y-2"
+                enter-to-class="opacity-100 translate-y-0"
+                leave-active-class="transition-all duration-300 ease-in"
+                leave-from-class="opacity-100 translate-y-0"
+                leave-to-class="opacity-0 -translate-y-1 sm:-translate-y-2"
+                mode="out-in">
+                <p :key="currentIndex" @click="selectExample(examples[currentIndex].text)" class="text-sm text-gray-700 dark:text-gray-300 italic absolute inset-0 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300" title="Click to use this example">
                     "{{ examples[currentIndex].text }}"
                 </p>
             </transition>
