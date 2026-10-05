@@ -168,11 +168,16 @@ async def run_exercise(req: Request):
             if edge_voice:
                 from app.bot import _generate_single_edge_audio
                 for i, step in enumerate(steps):
-                    tasks.append(_generate_single_edge_audio(step, edge_voice, session_id))
+                    tasks.append(_generate_single_edge_audio(step, edge_voice, session_id, i))
             else:
-                from app.bot import _generate_single_audio
+                from app.bot import _generate_single_audio, global_tts_semaphore
+                
+                async def bounded_gtts_audio(s, lang, tld, sid, idx):
+                    async with global_tts_semaphore:
+                        return await asyncio.to_thread(_generate_single_audio, s, lang, tld, sid, idx)
+                        
                 for i, step in enumerate(steps):
-                    tasks.append(asyncio.to_thread(_generate_single_audio, step, lang, tld, session_id))
+                    tasks.append(bounded_gtts_audio(step, lang, tld, session_id, i))
             
             completed = 0
             total = len(tasks)
