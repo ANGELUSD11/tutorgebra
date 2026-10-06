@@ -1,26 +1,25 @@
 import asyncio
 import logging
 import traceback
+import uvicorn
+import time
+import shutil
+import uuid
+import json
 import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file for local development
-load_dotenv()
 
 from collections import defaultdict
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-
-import uvicorn
-import time
-import shutil
-import uuid
-import json
+from dotenv import load_dotenv
 
 from app.agent import generate_geogebra_script
 from app.bot import pregenerate_audio
+
+# Load environment variables from .env file for local development
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
