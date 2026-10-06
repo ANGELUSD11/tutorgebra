@@ -164,40 +164,14 @@
                             </button>
                         </div>
                         
-                        <select v-if="!useEdgeTts" v-model="ttsVoice" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-colors">
-                            <option value="auto">Auto-detect Language (AI)</option>
-                            <optgroup label="Spanish (Female only)">
-                                <option value="es-es">Español (España)</option>
-                                <option value="es-com.mx">Español (México)</option>
-                            </optgroup>
-                            <optgroup label="English (Female only)">
-                                <option value="en-us">English (US)</option>
-                                <option value="en-co.uk">English (UK)</option>
-                            </optgroup>
-                        </select>
+                        <custom-select v-if="!useEdgeTts" v-model="ttsVoice" :options="gttsOptions"></custom-select>
                         
-                        <select v-else v-model="edgeVoice" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-colors">
-                            <optgroup label="Spanish">
-                                <option value="es-MX-JorgeNeural">Español (México) - Jorge (Male)</option>
-                                <option value="es-MX-DaliaNeural">Español (México) - Dalia (Female)</option>
-                                <option value="es-ES-AlvaroNeural">Español (España) - Alvaro (Male)</option>
-                                <option value="es-ES-ElviraNeural">Español (España) - Elvira (Female)</option>
-                            </optgroup>
-                            <optgroup label="English">
-                                <option value="en-US-GuyNeural">English (US) - Guy (Male)</option>
-                                <option value="en-US-JennyNeural">English (US) - Jenny (Female)</option>
-                            </optgroup>
-                        </select>
+                        <custom-select v-else v-model="edgeVoice" :options="edgeTtsOptions"></custom-select>
                     </div>
 
                     <div class="mb-6">
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">AI Model</label>
-                        <select v-model="selectedModel" class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-colors">
-                            <option value="auto">Auto (Smart Routing)</option>
-                            <option value="openai/gpt-4o">GPT-4o (Advanced Math & Vision)</option>
-                            <option value="openai/gpt-4o-mini">GPT-4o-mini (Basic Math)</option>
-                            <option value="anthropic/claude-sonnet-5.5">Claude 3.5 Sonnet</option>
-                        </select>
+                        <custom-select v-model="selectedModel" :options="modelOptions"></custom-select>
                     </div>
 
                     <button @click="startTutor" :disabled="loading || !prompt" 

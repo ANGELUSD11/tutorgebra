@@ -1,5 +1,6 @@
 import FloatingBackground from './components/FloatingBackground.js';
 import ExampleCarousel from './components/ExampleCarousel.js';
+import CustomSelect from './components/CustomSelect.js';
 
 const { createApp, ref, watch } = window.Vue;
 
@@ -14,6 +15,39 @@ const app = createApp({
         const edgeVoice = ref('es-MX-JorgeNeural');
         const useEdgeTts = ref(false);
         const selectedModel = ref('auto');
+        
+        const gttsOptions = [
+            { value: 'auto', label: 'Auto-detect Language (AI)' },
+            { label: 'Spanish (Female only)', options: [
+                { value: 'es-es', label: 'Español (España)' },
+                { value: 'es-com.mx', label: 'Español (México)' }
+            ]},
+            { label: 'English (Female only)', options: [
+                { value: 'en-us', label: 'English (US)' },
+                { value: 'en-co.uk', label: 'English (UK)' }
+            ]}
+        ];
+        
+        const edgeTtsOptions = [
+            { label: 'Spanish', options: [
+                { value: 'es-MX-JorgeNeural', label: 'Español (México) - Jorge (Male)' },
+                { value: 'es-MX-DaliaNeural', label: 'Español (México) - Dalia (Female)' },
+                { value: 'es-ES-AlvaroNeural', label: 'Español (España) - Alvaro (Male)' },
+                { value: 'es-ES-ElviraNeural', label: 'Español (España) - Elvira (Female)' }
+            ]},
+            { label: 'English', options: [
+                { value: 'en-US-GuyNeural', label: 'English (US) - Guy (Male)' },
+                { value: 'en-US-JennyNeural', label: 'English (US) - Jenny (Female)' }
+            ]}
+        ];
+        
+        const modelOptions = [
+            { value: 'auto', label: 'Auto (Smart Routing)' },
+            { value: 'openai/gpt-4o', label: 'GPT-4o (Advanced Math & Vision)' },
+            { value: 'openai/gpt-4o-mini', label: 'GPT-4o-mini (Basic Math)' },
+            { value: 'anthropic/claude-sonnet-5.5', label: 'Claude 3.5 Sonnet' }
+        ];
+
         const toggleEdgeTts = () => { useEdgeTts.value = !useEdgeTts.value; };
         const loading = ref(false);
         const loadingMessage = ref('Iniciando...');
@@ -363,6 +397,7 @@ const app = createApp({
             isDark, toggleDarkMode, showApiKeyModal, apiKey, prompt, ttsVoice, 
             imageBase64, imagePreview, handleImageUpload, removeImage,
             useEdgeTts, edgeVoice, toggleEdgeTts, selectedModel,
+            gttsOptions, edgeTtsOptions, modelOptions,
             loading, loadingMessage, loadingPercent, error, steps, meta, startTutor,
             appletLoaded, isPlaying, currentStep, togglePlay, resetLesson, nextStep,
             isFullscreen, toggleFullscreen, currentTypedText, volume
@@ -372,5 +407,6 @@ const app = createApp({
 
 app.component('floating-background', FloatingBackground);
 app.component('example-carousel', ExampleCarousel);
+app.component('custom-select', CustomSelect);
 
 app.mount('#app');
