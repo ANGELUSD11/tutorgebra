@@ -2,6 +2,7 @@ import logging
 import os
 import concurrent.futures
 from gtts import gTTS
+import edge_tts
 import asyncio
 
 logger = logging.getLogger('TutorGebraBot')
@@ -42,7 +43,6 @@ def _generate_single_audio(step, lang, tld, session_id, step_index=0):
     return step
 
 async def _generate_single_edge_audio(step, voice, session_id, step_index=0):
-    import edge_tts
     cmd = step.get("command", "")
     text = step.get("speech", "")
     if not text:
