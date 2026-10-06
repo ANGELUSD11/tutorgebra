@@ -55,11 +55,17 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
             )
             
             ocr_content = ocr_resp.choices[0].message.content
-            clean_ocr = ocr_content.strip()
-            if clean_ocr.startswith("```json"): clean_ocr = clean_ocr[7:]
-            elif clean_ocr.startswith("```"): clean_ocr = clean_ocr[3:]
-            if clean_ocr.endswith("```"): clean_content = clean_ocr[:-3]
-            clean_ocr = clean_ocr.strip()
+            import re
+            match_ocr = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', ocr_content, re.DOTALL)
+            if match_ocr:
+                clean_ocr = match_ocr.group(1).strip()
+            else:
+                start_ocr = ocr_content.find('{')
+                end_ocr = ocr_content.rfind('}')
+                if start_ocr != -1 and end_ocr != -1:
+                    clean_ocr = ocr_content[start_ocr:end_ocr+1].strip()
+                else:
+                    clean_ocr = ocr_content.strip()
         
             ocr_data = json.loads(clean_ocr)
             difficulty = ocr_data.get("difficulty", "basic").lower()
@@ -105,11 +111,19 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                 logger.error(f"Model {response.model} returned empty/None content. This may be a safety refusal or API glitch.")
                 content = ""
                 
-            clean_content = content.strip()
-            if clean_content.startswith("```json"): clean_content = clean_content[7:]
-            elif clean_content.startswith("```"): clean_content = clean_content[3:]
-            if clean_content.endswith("```"): clean_content = clean_content[:-3]
-            clean_content = clean_content.strip()
+            import re
+            # Extract JSON block if surrounded by markdown
+            match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if match:
+                clean_content = match.group(1).strip()
+            else:
+                # Fallback to finding first { and last }
+                start = content.find('{')
+                end = content.rfind('}')
+                if start != -1 and end != -1:
+                    clean_content = content[start:end+1].strip()
+                else:
+                    clean_content = content.strip()
             
             data = json.loads(clean_content)
             data["_meta"] = {
