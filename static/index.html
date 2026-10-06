@@ -86,6 +86,23 @@
             transform: translateY(-8px);
         }
         
+        .modal-enter-active, .modal-leave-active {
+            transition: opacity 0.3s ease;
+        }
+        .modal-enter-from, .modal-leave-to {
+            opacity: 0;
+        }
+        .modal-enter-active .modal-box {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-leave-active .modal-box {
+            transition: all 0.2s ease-in;
+        }
+        .modal-enter-from .modal-box, .modal-leave-to .modal-box {
+            opacity: 0;
+            transform: scale(0.9) translateY(15px);
+        }
+        
         [v-cloak] { display: none !important; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -291,35 +308,37 @@
         </div>
 
         <!-- API Key Modal -->
-        <div v-if="showApiKeyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm transition-opacity">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-lg w-full mx-4 border border-gray-100 dark:border-gray-700 relative">
-                <button @click="showApiKeyModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-key text-indigo-500"></i> What is the API Key?
-                </h2>
-                <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                    TutorGebra needs a "brain" to read your exercises and convert them into geometric code. We use <strong>OpenRouter</strong> to route your requests to the best free AI models available (like Gemini). If the server key is exhausted, you can use your own personal key.
-                </p>
-                <div class="flex items-start gap-3 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-4 border border-green-200 dark:border-green-800/30">
-                    <i class="fa-solid fa-shield-halved text-green-600 dark:text-green-400 mt-0.5"></i>
-                    <p class="text-xs text-green-700 dark:text-green-300"><strong>100% Secure:</strong> Your API key acts as a direct bridge between you and OpenRouter. We never log, collect, or store your key on our servers.</p>
+        <transition name="modal">
+            <div v-if="showApiKeyModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                <div class="modal-box bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-lg w-full mx-4 border border-gray-100 dark:border-gray-700 relative">
+                    <button @click="showApiKeyModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-key text-indigo-500"></i> What is the API Key?
+                    </h2>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                        TutorGebra needs a "brain" to read your exercises and convert them into geometric code. We use <strong>OpenRouter</strong> to route your requests to the best free AI models available (like Gemini). If the server key is exhausted, you can use your own personal key.
+                    </p>
+                    <div class="flex items-start gap-3 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg mb-4 border border-green-200 dark:border-green-800/30">
+                        <i class="fa-solid fa-shield-halved text-green-600 dark:text-green-400 mt-0.5"></i>
+                        <p class="text-xs text-green-700 dark:text-green-300"><strong>100% Secure:</strong> Your API key acts as a direct bridge between you and OpenRouter. We never log, collect, or store your key on our servers.</p>
+                    </div>
+                    <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4 mb-6 border border-indigo-100 dark:border-indigo-800/50">
+                        <h3 class="font-bold text-indigo-800 dark:text-indigo-300 mb-2 text-sm">Steps to get your key (It's free!):</h3>
+                        <ol class="list-decimal list-inside text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                            <li>Go to <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">OpenRouter.ai</a>.</li>
+                            <li>Log in with your Google or GitHub account.</li>
+                            <li>Click the <strong>"Create Key"</strong> button.</li>
+                            <li>Copy the generated code and paste it into TutorGebra.</li>
+                        </ol>
+                    </div>
+                    <button @click="showApiKeyModal = false" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 font-semibold py-3 rounded-xl transition-colors">
+                        Got it!
+                    </button>
                 </div>
-                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4 mb-6 border border-indigo-100 dark:border-indigo-800/50">
-                    <h3 class="font-bold text-indigo-800 dark:text-indigo-300 mb-2 text-sm">Steps to get your key (It's free!):</h3>
-                    <ol class="list-decimal list-inside text-sm text-gray-700 dark:text-gray-300 space-y-2">
-                        <li>Go to <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">OpenRouter.ai</a>.</li>
-                        <li>Log in with your Google or GitHub account.</li>
-                        <li>Click the <strong>"Create Key"</strong> button.</li>
-                        <li>Copy the generated code and paste it into TutorGebra.</li>
-                    </ol>
-                </div>
-                <button @click="showApiKeyModal = false" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 font-semibold py-3 rounded-xl transition-colors">
-                    Got it!
-                </button>
             </div>
-        </div>
+        </transition>
     </div>
 
     <script type="module" src="/static/app.js?v=3"></script>
