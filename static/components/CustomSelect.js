@@ -2,7 +2,7 @@ export default {
     template: `
     <div class="relative" @click.stop="toggleOpen">
         <!-- Select Trigger -->
-        <div class="w-full p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 transition-all cursor-pointer flex justify-between items-center shadow-sm hover:border-indigo-400 dark:hover:border-indigo-500">
+        <div class="w-full p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus-within:ring-2 focus-within:ring-primary-500 transition-all cursor-pointer flex justify-between items-center shadow-sm hover:border-primary-400 dark:hover:border-primary-500">
             <span class="truncate block pr-2 text-sm">{{ selectedLabel }}</span>
             <i class="fa-solid fa-chevron-down text-gray-400 dark:text-gray-400 transition-transform duration-300 text-xs" :class="{ 'rotate-180': isOpen }"></i>
         </div>
@@ -21,18 +21,18 @@ export default {
                     
                     <!-- If it's an option group -->
                     <div v-if="item.options">
-                        <div class="px-3 py-1.5 text-xs font-bold text-indigo-800 dark:text-indigo-400 bg-indigo-50/50 dark:bg-indigo-900/20 uppercase tracking-wider sticky top-0 backdrop-blur-sm z-10 border-y border-indigo-100 dark:border-indigo-800/50 first:border-t-0">
+                        <div class="px-3 py-1.5 text-xs font-bold text-primary-800 dark:text-primary-400 bg-primary-50/50 dark:bg-primary-900/20 uppercase tracking-wider sticky top-0 backdrop-blur-sm z-10 border-y border-primary-100 dark:border-primary-800/50 first:border-t-0">
                             {{ item.label }}
                         </div>
                         <div 
                             v-for="(subItem, subIdx) in item.options" 
                             :key="subIdx"
                             @click.stop="selectItem(subItem.value)"
-                            class="px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 flex items-center justify-between"
-                            :class="{ 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-medium': modelValue === subItem.value, 'text-gray-700 dark:text-gray-200': modelValue !== subItem.value }"
+                            class="px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150 hover:bg-primary-50 dark:hover:bg-primary-900/40 flex items-center justify-between"
+                            :class="{ 'bg-primary-50 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 font-medium': modelValue === subItem.value, 'text-gray-700 dark:text-gray-200': modelValue !== subItem.value }"
                         >
                             <span class="truncate pr-2">{{ subItem.label }}</span>
-                            <i v-if="modelValue === subItem.value" class="fa-solid fa-check text-indigo-600 dark:text-indigo-400 text-xs"></i>
+                            <i v-if="modelValue === subItem.value" class="fa-solid fa-check text-primary-600 dark:text-primary-400 text-xs"></i>
                         </div>
                     </div>
                     
@@ -40,11 +40,11 @@ export default {
                     <div 
                         v-else
                         @click.stop="selectItem(item.value)"
-                        class="px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 flex items-center justify-between"
-                        :class="{ 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-medium': modelValue === item.value, 'text-gray-700 dark:text-gray-200': modelValue !== item.value }"
+                        class="px-4 py-2.5 text-sm cursor-pointer transition-colors duration-150 hover:bg-primary-50 dark:hover:bg-primary-900/40 flex items-center justify-between"
+                        :class="{ 'bg-primary-50 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 font-medium': modelValue === item.value, 'text-gray-700 dark:text-gray-200': modelValue !== item.value }"
                     >
                         <span class="truncate pr-2">{{ item.label }}</span>
-                        <i v-if="modelValue === item.value" class="fa-solid fa-check text-indigo-600 dark:text-indigo-400 text-xs"></i>
+                        <i v-if="modelValue === item.value" class="fa-solid fa-check text-primary-600 dark:text-primary-400 text-xs"></i>
                     </div>
 
                 </template>

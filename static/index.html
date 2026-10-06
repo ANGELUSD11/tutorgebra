@@ -34,6 +34,20 @@
             darkMode: 'class',
             theme: {
                 extend: {
+                    colors: {
+                        primary: {
+                            50: 'rgb(var(--color-primary-50) / <alpha-value>)',
+                            100: 'rgb(var(--color-primary-100) / <alpha-value>)',
+                            200: 'rgb(var(--color-primary-200) / <alpha-value>)',
+                            300: 'rgb(var(--color-primary-300) / <alpha-value>)',
+                            400: 'rgb(var(--color-primary-400) / <alpha-value>)',
+                            500: 'rgb(var(--color-primary-500) / <alpha-value>)',
+                            600: 'rgb(var(--color-primary-600) / <alpha-value>)',
+                            700: 'rgb(var(--color-primary-700) / <alpha-value>)',
+                            800: 'rgb(var(--color-primary-800) / <alpha-value>)',
+                            900: 'rgb(var(--color-primary-900) / <alpha-value>)',
+                        }
+                    },
                     fontFamily: {
                         sans: ['Rubik', 'sans-serif'],
                     }
@@ -41,89 +55,7 @@
             }
         }
     </script>
-    <style>
-        /* Estilos elegantes para las barras de desplazamiento (Scrollbars) */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1; /* gray-300 */
-            border-radius: 10px;
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #4b5563; /* gray-600 */
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background-color: #94a3b8; /* gray-400 */
-        }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background-color: #6b7280; /* gray-500 */
-        }
-        
-        @keyframes float-up {
-            0% {
-                transform: translateY(100vh) scale(0.5) rotate(0deg);
-                opacity: 0;
-            }
-            15% {
-                opacity: 0.3;
-            }
-            85% {
-                opacity: 0.3;
-            }
-            100% {
-                transform: translateY(-20vh) scale(1.5) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        .math-symbol {
-            position: fixed;
-            bottom: -100px;
-            user-select: none;
-            pointer-events: none;
-            z-index: 0;
-            animation: float-up linear infinite;
-        }
-        
-        .slide-fade-enter-active {
-            transition: all 0.5s ease-out !important;
-        }
-        .slide-fade-leave-active {
-            transition: all 0.3s ease-in !important;
-        }
-        .slide-fade-enter-from {
-            opacity: 0;
-            transform: translateY(8px);
-        }
-        .slide-fade-leave-to {
-            opacity: 0;
-            transform: translateY(-8px);
-        }
-        
-        .modal-enter-active, .modal-leave-active {
-            transition: opacity 0.3s ease;
-        }
-        .modal-enter-from, .modal-leave-to {
-            opacity: 0;
-        }
-        .modal-enter-active .modal-box {
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .modal-leave-active .modal-box {
-            transition: all 0.2s ease-in;
-        }
-        .modal-enter-from .modal-box, .modal-leave-to .modal-box {
-            opacity: 0;
-            transform: scale(0.9) translateY(15px);
-        }
-        
-        [v-cloak] { display: none !important; }
-    </style>
+    <link rel="stylesheet" href="/static/styles/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 font-sans antialiased min-h-screen transition-colors duration-200 custom-scrollbar">
@@ -137,13 +69,13 @@
         </a>
 
         <!-- Dark Mode Toggle -->
-        <button @click="toggleDarkMode" class="absolute top-4 right-4 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus:outline-none">
+        <button @click="toggleDarkMode" class="absolute top-4 right-4 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors focus:outline-none">
             <i class="fa-solid fa-moon text-2xl" v-if="!isDark"></i>
             <i class="fa-solid fa-sun text-2xl" v-else></i>
         </button>
 
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2"><i class="fa-solid fa-shapes mr-2"></i>TutorGebra AI</h1>
+            <h1 class="text-4xl font-bold text-primary-600 dark:text-primary-400 mb-2"><i class="fa-solid fa-shapes mr-2"></i>TutorGebra AI</h1>
             <p class="text-gray-500 dark:text-gray-400">Your automated interactive geometry tutor.</p>
         </div>
 
@@ -154,7 +86,7 @@
                     <div class="mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">OpenRouter API Key (Optional)</label>
-                            <button @click="showApiKeyModal = true" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium transition-colors flex items-center gap-1">
+                            <button @click="showApiKeyModal = true" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 text-sm font-medium transition-colors flex items-center gap-1">
                                 <i class="fa-solid fa-circle-question"></i> How to get it?
                             </button>
                         </div>
@@ -163,7 +95,7 @@
                                 <i class="fa-solid fa-key text-gray-400 dark:text-gray-500"></i>
                             </div>
                             <input type="password" v-model="apiKey" placeholder="Leave blank to use Server's free key" 
-                                   class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                                   class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
                         </div>
                         <p class="text-xs text-green-600 dark:text-green-400 mt-2 flex items-center gap-1 font-medium"><i class="fa-solid fa-server"></i> Uses server key by default. Enter your own for private quotas.</p>
                     </div>
@@ -171,19 +103,19 @@
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">What do you want to calculate or draw?</label>
                         <textarea v-model="prompt" rows="3" placeholder="Ex: Draw a right triangle and its circumscribed circle." 
-                                  class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"></textarea>
+                                  class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"></textarea>
                         
                         <example-carousel @select="(t) => prompt = t"></example-carousel>
                         
                         <div class="mt-3">
-                            <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors">
+                            <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 transition-colors">
                                 <i class="fa-solid fa-image"></i> Attach image (optional)
                                 <input type="file" @change="handleImageUpload" accept="image/*" class="hidden">
                             </label>
                             
                             <div v-if="imagePreview" class="block mt-3">
                                 <div class="relative inline-block">
-                                    <img :src="imagePreview" class="h-24 w-auto rounded-lg border-2 border-indigo-200 dark:border-indigo-800 shadow-md object-cover transition-all hover:shadow-lg">
+                                    <img :src="imagePreview" class="h-24 w-auto rounded-lg border-2 border-primary-200 dark:border-primary-800 shadow-md object-cover transition-all hover:shadow-lg">
                                     <button @click="removeImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors shadow-md z-10" title="Remove image">
                                         <i class="fa-solid fa-xmark text-sm"></i>
                                     </button>
@@ -195,7 +127,7 @@
                     <div class="mb-6">
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Teacher Voice</label>
-                            <button @click="toggleEdgeTts" type="button" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 text-xs font-medium transition-colors flex items-center gap-1">
+                            <button @click="toggleEdgeTts" type="button" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 text-xs font-medium transition-colors flex items-center gap-1">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i> {{ useEdgeTts ? 'Basic Voices (gTTS)' : 'More Voices (edgeTTS)' }}
                             </button>
                         </div>
@@ -211,7 +143,7 @@
                     </div>
 
                     <button @click="startTutor" :disabled="loading || !prompt" 
-                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i v-if="loading" class="fa-solid fa-circle-notch fa-spin"></i>
                         <i v-else class="fa-solid fa-chalkboard-user"></i>
                         {{ loading ? 'Generating lesson...' : 'Generate Lesson' }}
@@ -219,11 +151,11 @@
                     
                     <div v-if="loading" class="mt-4">
                         <div class="flex justify-between mb-1">
-                            <span class="text-xs font-medium text-indigo-700 dark:text-indigo-400">{{ loadingMessage }}</span>
-                            <span class="text-xs font-medium text-indigo-700 dark:text-indigo-400">{{ loadingPercent }}%</span>
+                            <span class="text-xs font-medium text-primary-700 dark:text-primary-400">{{ loadingMessage }}</span>
+                            <span class="text-xs font-medium text-primary-700 dark:text-primary-400">{{ loadingPercent }}%</span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 overflow-hidden">
-                            <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" :style="'width: ' + loadingPercent + '%'"></div>
+                            <div class="bg-primary-600 h-2 rounded-full transition-all duration-300" :style="'width: ' + loadingPercent + '%'"></div>
                         </div>
                     </div>
                     
@@ -249,7 +181,7 @@
                         <button @click="resetLesson" class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors" title="Restart">
                             <i class="fa-solid fa-rotate-left"></i>
                         </button>
-                        <button @click="togglePlay" class="w-16 h-16 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center text-xl shadow-lg transition-transform hover:scale-105">
+                        <button @click="togglePlay" class="w-16 h-16 rounded-full bg-primary-600 hover:bg-primary-700 text-white flex items-center justify-center text-xl shadow-lg transition-transform hover:scale-105">
                             <i :class="isPlaying ? 'fa-solid fa-pause' : 'fa-solid fa-play ml-1'"></i>
                         </button>
                         <button @click="nextStep" :disabled="currentStep >= steps.length" class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-colors disabled:opacity-50" title="Next Step">
@@ -260,14 +192,14 @@
                     <!-- Volume Control -->
                     <div class="flex items-center gap-3 mb-6 px-4 bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl border border-gray-100 dark:border-gray-700">
                         <i class="fa-solid fa-volume-low text-gray-500 dark:text-gray-400"></i>
-                        <input type="range" min="0" max="1" step="0.05" v-model.number="volume" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-indigo-600">
+                        <input type="range" min="0" max="1" step="0.05" v-model.number="volume" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 accent-primary-600">
                         <i class="fa-solid fa-volume-high text-gray-500 dark:text-gray-400"></i>
                     </div>
 
                     <div class="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                         <div v-for="(step, idx) in steps" :key="idx" 
                              :class="['p-3 rounded-lg border text-sm transition-all duration-300', 
-                                      idx === currentStep ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/40 dark:border-indigo-500 shadow-sm' : 
+                                      idx === currentStep ? 'bg-primary-50 border-primary-200 dark:bg-primary-900/40 dark:border-primary-500 shadow-sm' : 
                                       idx < currentStep ? 'bg-gray-50 border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 opacity-60' : 'bg-white border-gray-100 dark:bg-gray-800 dark:border-gray-700 opacity-40']">
                             <code class="font-mono text-pink-600 dark:text-pink-400">{{ step.command }}</code>
                             <p class="text-gray-600 dark:text-gray-400 mt-1 italic leading-tight">"{{ step.speech }}"</p>
@@ -291,9 +223,9 @@
                     <!-- Header Bar for Applet -->
                     <div class="h-12 bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur border-b border-gray-200 dark:border-gray-700 flex justify-between items-center px-4 shrink-0 transition-colors">
                         <span class="text-sm font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-2">
-                            <i class="fa-solid fa-shapes text-indigo-500"></i> Interactive Board
+                            <i class="fa-solid fa-shapes text-primary-500"></i> Interactive Board
                         </span>
-                        <button @click="toggleFullscreen" class="text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-all duration-200 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95" title="Fullscreen">
+                        <button @click="toggleFullscreen" class="text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition-all duration-200 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95" title="Fullscreen">
                             <i :class="isFullscreen ? 'fa-solid fa-compress' : 'fa-solid fa-expand'"></i>
                         </button>
                     </div>
@@ -311,7 +243,7 @@
                         <!-- Floating Terminal (Simulador de escritura) -->
                         <transition enter-active-class="transition-all ease-out duration-300" enter-from-class="opacity-0 translate-y-4" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition-all ease-in duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
                             <div v-if="currentTypedText !== null" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-md border border-gray-700 text-green-400 font-mono px-5 py-3 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-[70] text-lg lg:text-xl flex items-center max-w-[90%] whitespace-nowrap overflow-hidden">
-                                <span class="text-indigo-400 mr-3 font-bold">~</span>
+                                <span class="text-primary-400 mr-3 font-bold">~</span>
                                 <span class="tracking-wide">{{ currentTypedText }}</span>
                                 <span class="w-2.5 h-6 bg-green-400 ml-1 animate-[pulse_1s_ease-in-out_infinite]"></span>
                             </div>
@@ -323,7 +255,7 @@
 
         <!-- Footer -->
         <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400 transition-colors duration-200">
-            <p>Created by <a href="https://www.angelus11.dev/" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">ANGELUS11</a>. Non-profit, MIT License.</p>
+            <p>Created by <a href="https://www.angelus11.dev/" target="_blank" class="text-primary-600 dark:text-primary-400 hover:underline font-semibold">ANGELUS11</a>. Non-profit, MIT License.</p>
         </div>
 
         <!-- API Key Modal -->
@@ -334,7 +266,7 @@
                         <i class="fa-solid fa-xmark text-xl"></i>
                     </button>
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-key text-indigo-500"></i> What is the API Key?
+                        <i class="fa-solid fa-key text-primary-500"></i> What is the API Key?
                     </h2>
                     <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
                         TutorGebra needs a "brain" to read your exercises and convert them into geometric code. We use <strong>OpenRouter</strong> to route your requests to the best free AI models available (like Gemini). If the server key is exhausted, you can use your own personal key.
@@ -343,8 +275,8 @@
                         <i class="fa-solid fa-shield-halved text-green-600 dark:text-green-400 mt-0.5"></i>
                         <p class="text-xs text-green-700 dark:text-green-300"><strong>100% Secure:</strong> Your API key acts as a direct bridge between you and OpenRouter. We never log, collect, or store your key on our servers.</p>
                     </div>
-                    <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-lg p-4 mb-6 border border-indigo-100 dark:border-indigo-800/50">
-                        <h3 class="font-bold text-indigo-800 dark:text-indigo-300 mb-2 text-sm">Steps to get your key (It's free!):</h3>
+                    <div class="bg-primary-50 dark:bg-primary-900/30 rounded-lg p-4 mb-6 border border-primary-100 dark:border-primary-800/50">
+                        <h3 class="font-bold text-primary-800 dark:text-primary-300 mb-2 text-sm">Steps to get your key (It's free!):</h3>
                         <ol class="list-decimal list-inside text-sm text-gray-700 dark:text-gray-300 space-y-2">
                             <li>Go to <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline font-semibold">OpenRouter.ai</a>.</li>
                             <li>Log in with your Google or GitHub account.</li>

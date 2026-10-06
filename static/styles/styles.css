@@ -1,0 +1,96 @@
+:root {
+    /* Primary Brand Colors (RGB values for Tailwind opacity support) */
+    --color-primary-50: 238 242 255;
+    --color-primary-100: 224 231 255;
+    --color-primary-200: 199 210 254;
+    --color-primary-300: 165 180 252;
+    --color-primary-400: 129 140 248;
+    --color-primary-500: 99 102 241;
+    --color-primary-600: 79 70 229;
+    --color-primary-700: 67 56 202;
+    --color-primary-800: 55 48 163;
+    --color-primary-900: 49 46 129;
+}
+
+/* Estilos elegantes para las barras de desplazamiento (Scrollbars) */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1; /* gray-300 */
+    border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #4b5563; /* gray-600 */
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8; /* gray-400 */
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #6b7280; /* gray-500 */
+}
+
+@keyframes float-up {
+    0% {
+        transform: translateY(100vh) scale(0.5) rotate(0deg);
+        opacity: 0;
+    }
+    15% {
+        opacity: 0.3;
+    }
+    85% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translateY(-20vh) scale(1.5) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.math-symbol {
+    position: fixed;
+    bottom: -100px;
+    user-select: none;
+    pointer-events: none;
+    z-index: 0;
+    animation: float-up linear infinite;
+}
+
+.slide-fade-enter-active {
+    transition: all 0.5s ease-out !important;
+}
+.slide-fade-leave-active {
+    transition: all 0.3s ease-in !important;
+}
+.slide-fade-enter-from {
+    opacity: 0;
+    transform: translateY(8px);
+}
+.slide-fade-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
+.modal-enter-active, .modal-leave-active {
+    transition: opacity 0.3s ease;
+}
+.modal-enter-from, .modal-leave-to {
+    opacity: 0;
+}
+.modal-enter-active .modal-box {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-leave-active .modal-box {
+    transition: all 0.2s ease-in;
+}
+.modal-enter-from .modal-box, .modal-leave-to .modal-box {
+    opacity: 0;
+    transform: scale(0.9) translateY(15px);
+}
+
+[v-cloak] { display: none !important; }
+
