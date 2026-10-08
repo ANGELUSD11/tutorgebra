@@ -1,6 +1,7 @@
 import FloatingBackground from './components/FloatingBackground.js';
 import ExampleCarousel from './components/ExampleCarousel.js';
 import CustomSelect from './components/CustomSelect.js';
+import MiniAlert from './components/MiniAlert.js';
 
 const { createApp, ref, watch } = window.Vue;
 
@@ -408,5 +409,6 @@ const app = createApp({
 app.component('floating-background', FloatingBackground);
 app.component('example-carousel', ExampleCarousel);
 app.component('custom-select', CustomSelect);
+app.component('mini-alert', MiniAlert);
 
 app.mount('#app');

@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import logging
 import base64
@@ -55,7 +56,6 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
             )
             
             ocr_content = ocr_resp.choices[0].message.content
-            import re
             match_ocr = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', ocr_content, re.DOTALL)
             if match_ocr:
                 clean_ocr = match_ocr.group(1).strip()
@@ -103,6 +103,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                 temperature=0.7,
                 max_tokens=1200
             )
+            #logs helper, to see which model was used in each response
             logger.info(f"OpenRouter successfully routed the request to model: {response.model}")
             
             content = response.choices[0].message.content
@@ -111,7 +112,6 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                 logger.error(f"Model {response.model} returned empty/None content. This may be a safety refusal or API glitch.")
                 content = ""
                 
-            import re
             # Extract JSON block if surrounded by markdown
             match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
             if match:
