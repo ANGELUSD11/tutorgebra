@@ -123,7 +123,21 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                 if start != -1 and end != -1:
                     clean_content = content[start:end+1].strip()
                 else:
-                    clean_content = content.strip()
+                    # No JSON object found at all. This usually means a conversational refusal or explanation.
+                    # Instead of failing and retrying, we return a synthetic valid response so the tutor just "speaks" it.
+                    logger.warning("No JSON object detected in response. Treating as conversational fallback.")
+                    return {
+                        "steps": [
+                            {
+                                "command": "",
+                                "speech": content.strip()
+                            }
+                        ],
+                        "_meta": {
+                            "difficulty": locals().get("difficulty", "basic"),
+                            "model": response.model
+                        }
+                    }
             
             data = json.loads(clean_content)
             data["_meta"] = {
