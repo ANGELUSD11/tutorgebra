@@ -179,7 +179,10 @@ const app = createApp({
             try {
                 const response = await fetch('/api/run', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-Tutor-Client': 'TutorGebraWeb'
+                    },
                     body: JSON.stringify({
                         prompt: prompt.value,
                         api_key: apiKey.value,

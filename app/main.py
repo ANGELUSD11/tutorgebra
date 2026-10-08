@@ -8,6 +8,7 @@ import uuid
 import json
 import os
 
+from fastapi.middleware.cors import CORSMiddleware
 from collections import defaultdict
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -46,6 +47,28 @@ async def lifespan(app: FastAPI):
     task.cancel()
 
 app = FastAPI(title="TutorGebra", lifespan=lifespan)
+
+# Configurar dominios permitidos para CORS (Navegadores)
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8080",
+    "https://tutorgebra-production.up.railway.app",
+]
+
+env_origins = os.environ.get("ALLOWED_ORIGINS")
+if env_origins:
+    origins.extend([o.strip() for o in env_origins.split(",")])
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS", "DELETE"],
+    allow_headers=["*"],
+)
 
 static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
 os.makedirs(static_path, exist_ok=True)
@@ -123,6 +146,12 @@ def check_rate_limit(request: Request):
 
 @app.post("/api/run")
 async def run_exercise(req: Request):
+    # Bot Protection: Check for custom header to block simple curl/script bots
+    client_header = req.headers.get("x-tutor-client")
+    if client_header != "TutorGebraWeb":
+        logger.warning(f"Bot blocked. Missing or invalid client header from IP: {req.client.host}")
+        raise HTTPException(status_code=403, detail="Forbidden. Please use the official web interface.")
+
     check_rate_limit(req)
     body = await req.json()
     prompt = body.get("prompt", "")
