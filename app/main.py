@@ -32,11 +32,15 @@ logger = logging.getLogger('TutorGebraWeb')
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 
+from app.redis_rate_limit import init_redis, close_redis, check_rate_limit_redis
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Dynamically expand thread pool for blocking I/O (Gemini API & gTTS) up to 200 workers during traffic spikes
     loop = asyncio.get_running_loop()
     loop.set_default_executor(ThreadPoolExecutor(max_workers=200))
+    
+    await init_redis()
     
     # Clean up immediately on startup
     await asyncio.to_thread(cleanup_old_audios)
@@ -45,10 +49,11 @@ async def lifespan(app: FastAPI):
     yield
     # Clean up background task on shutdown
     task.cancel()
+    await close_redis()
 
 app = FastAPI(title="TutorGebra", lifespan=lifespan)
 
-# Configurar dominios permitidos para CORS (Navegadores)
+# Configure allowed domains for CORS (Browsers)
 origins = [
     "http://localhost",
     "http://localhost:8000",
@@ -125,34 +130,41 @@ async def cleanup_session(session_id: str):
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
-# Simple In-Memory Rate Limiter (Anti-DDoS Layer 7)
+# Simple In-Memory Rate Limiter (Fallback Anti-DDoS Layer 7)
 RATE_LIMIT = 5  # Max requests
 RATE_LIMIT_WINDOW = 60  # Per 60 seconds
 ip_requests = defaultdict(list)
 
-def check_rate_limit(request: Request):
-    # Get IP, accounting for PaaS reverse proxies like Railway or Cloudflare
-    client_ip = request.headers.get("x-forwarded-for", request.client.host).split(",")[0].strip()
+def check_rate_limit_memory(client_ip: str):
     now = time.time()
     
     # Clean up requests older than the window
     ip_requests[client_ip] = [t for t in ip_requests[client_ip] if now - t < RATE_LIMIT_WINDOW]
     
     if len(ip_requests[client_ip]) >= RATE_LIMIT:
-        logger.warning(f"Rate limit exceeded for IP: {client_ip}")
+        logger.warning(f"Local memory rate limit exceeded for IP: {client_ip}")
         raise HTTPException(status_code=429, detail="Too many requests. Please wait a minute before generating another lesson.")
         
     ip_requests[client_ip].append(now)
 
 @app.post("/api/run")
 async def run_exercise(req: Request):
+    # Get real user IP (supporting reverse proxies like Railway/Cloudflare)
+    client_ip = req.headers.get("x-forwarded-for", req.client.host).split(",")[0].strip()
+
     # Bot Protection: Check for custom header to block simple curl/script bots
     client_header = req.headers.get("x-tutor-client")
     if client_header != "TutorGebraWeb":
-        logger.warning(f"Bot blocked. Missing or invalid client header from IP: {req.client.host}")
+        logger.warning(f"Bot blocked. Missing or invalid client header from IP: {client_ip}")
         raise HTTPException(status_code=403, detail="Forbidden. Please use the official web interface.")
 
-    check_rate_limit(req)
+    # Try to use Redis Global Rate Limiting first
+    redis_handled = await check_rate_limit_redis(client_ip, limit=5, window=60)
+    
+    # If Redis is disconnected or fails, fallback to local memory limit
+    if not redis_handled:
+        check_rate_limit_memory(client_ip)
+
     body = await req.json()
     prompt = body.get("prompt", "")
     api_key = body.get("api_key", "")
