@@ -51,7 +51,16 @@ async def lifespan(app: FastAPI):
     task.cancel()
     await close_redis()
 
-app = FastAPI(title="TutorGebra", lifespan=lifespan)
+# Detect if we are running in a production environment (like Railway)
+is_production = os.environ.get("ENVIRONMENT", "").lower() == "production" or "RAILWAY_ENVIRONMENT_NAME" in os.environ
+
+app = FastAPI(
+    title="TutorGebra", 
+    lifespan=lifespan,
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc",
+    openapi_url=None if is_production else "/openapi.json"
+)
 
 # Configure allowed domains for CORS (Browsers)
 origins = [
