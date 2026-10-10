@@ -6,3 +6,7 @@ audios/
 .gitignore
 install_and_run.bat
 install_and_run.sh
+
+# Security: Exclude environment variables to prevent API key leaks
+.env
+*.env
