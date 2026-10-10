@@ -7,6 +7,7 @@ import shutil
 import uuid
 import json
 import os
+import ipaddress
 
 from fastapi.middleware.cors import CORSMiddleware
 from collections import defaultdict
@@ -125,6 +126,7 @@ def cleanup_old_audios():
 async def periodic_cleanup():
     while True:
         await asyncio.to_thread(cleanup_old_audios)
+        sweep_rate_limit_memory()  # Free memory from IPs that stopped sending requests
         await asyncio.sleep(600) # Run every 10 minutes
 
 @app.api_route("/api/cleanup/{session_id}", methods=["POST", "DELETE"])
@@ -158,13 +160,51 @@ async def cleanup_session(session_id: str):
             content={"status": "error", "detail": "Error interno al procesar la solicitud."},
         )
 
+# --- Client IP resolution (Fix #3) ---
+# X-Forwarded-For is a comma-separated list where each proxy APPENDS the address it saw.
+# The leftmost entries are written by the client and can be forged, so we only trust the
+# entry added by our own proxy: the Nth from the right, where N = number of trusted proxies.
+# If the proxy overwrites the header instead, there is a single entry and the result is the same.
+TRUST_PROXY_HEADERS = os.environ.get("TRUST_PROXY_HEADERS", "1" if is_production else "0") == "1"
+TRUSTED_PROXY_HOPS = max(1, int(os.environ.get("TRUSTED_PROXY_HOPS", "1")))
+
+def get_client_ip(req: Request) -> str:
+    peer_ip = req.client.host if req.client else "unknown"
+    if not TRUST_PROXY_HEADERS:
+        # Local/dev: there is no proxy in front, so any X-Forwarded-For would be client-forged
+        return peer_ip
+
+    xff = req.headers.get("x-forwarded-for", "")
+    hops = [h.strip() for h in xff.split(",") if h.strip()]
+    if not hops:
+        return peer_ip
+
+    candidate = hops[-TRUSTED_PROXY_HOPS] if len(hops) >= TRUSTED_PROXY_HOPS else hops[0]
+    try:
+        # Normalizes the value and rejects garbage, so it can't be used to create arbitrary keys
+        return str(ipaddress.ip_address(candidate))
+    except ValueError:
+        logger.warning(f"Invalid X-Forwarded-For value {candidate!r:.60}; using peer IP")
+        return peer_ip
+
 # Simple In-Memory Rate Limiter (Fallback Anti-DDoS Layer 7)
 RATE_LIMIT = 5  # Max requests
 RATE_LIMIT_WINDOW = 60  # Per 60 seconds
+MAX_TRACKED_IPS = 10_000  # Force a sweep above this many entries to bound memory usage
 ip_requests = defaultdict(list)
+
+def sweep_rate_limit_memory():
+    """Drop IPs with no requests inside the current window so the dict can't grow forever."""
+    cutoff = time.time() - RATE_LIMIT_WINDOW
+    stale = [ip for ip, timestamps in ip_requests.items() if not timestamps or timestamps[-1] < cutoff]
+    for ip in stale:
+        ip_requests.pop(ip, None)
 
 def check_rate_limit_memory(client_ip: str):
     now = time.time()
+
+    if len(ip_requests) > MAX_TRACKED_IPS:
+        sweep_rate_limit_memory()
     
     # Clean up requests older than the window
     ip_requests[client_ip] = [t for t in ip_requests[client_ip] if now - t < RATE_LIMIT_WINDOW]
@@ -193,10 +233,54 @@ ALLOWED_MODELS = {
     "anthropic/claude-sonnet-5.5",
 }
 
+# --- Input size limits (Fix #4) ---
+MAX_BODY_BYTES = 6 * 1024 * 1024   # 6 MB for the whole JSON body
+MAX_IMAGE_B64_CHARS = 5_000_000    # ~3.7 MB decoded image (the frontend downscales before sending)
+MAX_PROMPT_CHARS = 4_000
+MAX_API_KEY_CHARS = 256
+MAX_SHORT_FIELD_CHARS = 64         # voice, edge_voice, selected_model
+
+async def read_json_body(req: Request, max_bytes: int) -> dict:
+    """Read the request body with a hard size cap instead of loading it blindly into memory."""
+    content_length = req.headers.get("content-length")
+    if content_length is not None:
+        try:
+            if int(content_length) > max_bytes:
+                raise HTTPException(status_code=413, detail="La solicitud es demasiado grande.")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Content-Length inválido.")
+
+    # Also enforced while streaming, because chunked requests may omit Content-Length
+    chunks, size = [], 0
+    async for chunk in req.stream():
+        size += len(chunk)
+        if size > max_bytes:
+            raise HTTPException(status_code=413, detail="La solicitud es demasiado grande.")
+        chunks.append(chunk)
+
+    try:
+        body = json.loads(b"".join(chunks))
+    except (ValueError, UnicodeDecodeError):
+        raise HTTPException(status_code=400, detail="JSON inválido.")
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="JSON inválido.")
+    return body
+
+def get_str_field(body: dict, key: str, max_len: int, default=None):
+    """Return an optional string field, rejecting wrong types and oversized values."""
+    value = body.get(key)
+    if value is None:
+        return default
+    if not isinstance(value, str):
+        raise HTTPException(status_code=400, detail=f"Campo '{key}' inválido.")
+    if len(value) > max_len:
+        raise HTTPException(status_code=413, detail=f"El campo '{key}' es demasiado largo.")
+    return value
+
 @app.post("/api/run")
 async def run_exercise(req: Request):
-    # Get real user IP (supporting reverse proxies like Railway/Cloudflare)
-    client_ip = req.headers.get("x-forwarded-for", req.client.host).split(",")[0].strip()
+    # Get real user IP from the trusted proxy hop (see get_client_ip)
+    client_ip = get_client_ip(req)
 
     # Bot Protection: Check for custom header to block simple curl/script bots
     client_header = req.headers.get("x-tutor-client")
@@ -211,13 +295,13 @@ async def run_exercise(req: Request):
     if not redis_handled:
         check_rate_limit_memory(client_ip)
 
-    body = await req.json()
-    prompt = body.get("prompt", "")
-    api_key = body.get("api_key", "")
-    voice = body.get("voice", "auto")
-    edge_voice = body.get("edge_voice")
-    image_b64 = body.get("image")
-    selected_model = body.get("selected_model") or "auto"
+    body = await read_json_body(req, MAX_BODY_BYTES)
+    prompt = get_str_field(body, "prompt", MAX_PROMPT_CHARS, default="")
+    api_key = get_str_field(body, "api_key", MAX_API_KEY_CHARS, default="")
+    voice = get_str_field(body, "voice", MAX_SHORT_FIELD_CHARS, default="auto")
+    edge_voice = get_str_field(body, "edge_voice", MAX_SHORT_FIELD_CHARS)
+    image_b64 = get_str_field(body, "image", MAX_IMAGE_B64_CHARS)
+    selected_model = get_str_field(body, "selected_model", MAX_SHORT_FIELD_CHARS) or "auto"
 
     # Fix #2: only allow known models (prevents arbitrary/expensive models on the server key)
     if not isinstance(selected_model, str) or selected_model not in ALLOWED_MODELS:

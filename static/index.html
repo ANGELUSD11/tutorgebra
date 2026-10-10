@@ -102,7 +102,7 @@
 
                     <div class="mb-4">
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">What do you want to calculate or draw?</label>
-                        <textarea v-model="prompt" rows="3" placeholder="Ex: Draw a right triangle and its circumscribed circle." 
+                        <textarea v-model="prompt" maxlength="4000" rows="3" placeholder="Ex: Draw a right triangle and its circumscribed circle." 
                                   class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"></textarea>
                         
                         <example-carousel @select="(t) => prompt = t"></example-carousel>

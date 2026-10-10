@@ -102,19 +102,47 @@ const app = createApp({
             isFullscreen.value = !isFullscreen.value;
         };
 
+        // Must stay below MAX_IMAGE_B64_CHARS in app/main.py
+        const MAX_IMAGE_B64_CHARS = 5_000_000;
+        const MAX_IMAGE_DIMENSION = 1600;
+
         const handleImageUpload = (event) => {
             const file = event.target.files[0];
+            event.target.value = ''; // allow re-selecting the same file
             if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                error.value = 'El archivo seleccionado no es una imagen.';
+                return;
+            }
 
-            imagePreview.value = URL.createObjectURL(file);
+            const objectUrl = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = () => {
+                // Downscale and re-encode as JPEG: keeps uploads small (cheaper vision tokens)
+                // and under the server's body size limit, even for large phone photos.
+                const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(img.width, img.height));
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffffff'; // flatten transparent PNGs onto white
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const dataUrl = e.target.result;
-                const base64 = dataUrl.split(',')[1];
+                const base64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                if (base64.length > MAX_IMAGE_B64_CHARS) {
+                    URL.revokeObjectURL(objectUrl);
+                    error.value = 'La imagen es demasiado grande, incluso después de comprimirla.';
+                    return;
+                }
+                imagePreview.value = objectUrl;
                 imageBase64.value = base64;
             };
-            reader.readAsDataURL(file);
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                error.value = 'No se pudo leer la imagen.';
+            };
+            img.src = objectUrl;
         };
 
         const removeImage = () => {
