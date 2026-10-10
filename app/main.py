@@ -129,15 +129,34 @@ async def periodic_cleanup():
 
 @app.api_route("/api/cleanup/{session_id}", methods=["POST", "DELETE"])
 async def cleanup_session(session_id: str):
+    # 1. Strict validation: session IDs are always uuid4, so reject anything else.
+    #    A valid UUID cannot contain '/', '\\' or '..', which rules out path traversal.
     try:
-        # Sanitize session_id to prevent path traversal
-        session_id = os.path.basename(session_id)
-        folder_path = os.path.join(audios_path, session_id)
-        if os.path.exists(folder_path) and os.path.isdir(folder_path):
+        safe_session_id = str(uuid.UUID(session_id))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Formato de session_id inválido.")
+
+    try:
+        base_dir = os.path.realpath(audios_path)
+        folder_path = os.path.realpath(os.path.join(base_dir, safe_session_id))
+
+        # 2. Defense in depth: the resolved path must be a direct child of the audios dir
+        #    (also guards against symlinks pointing outside of it).
+        if os.path.dirname(folder_path) != base_dir:
+            raise HTTPException(status_code=400, detail="Formato de session_id inválido.")
+
+        if os.path.isdir(folder_path):
             shutil.rmtree(folder_path, ignore_errors=True)
         return {"status": "ok"}
+    except HTTPException:
+        raise
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        # Log the real error, return a generic message to the client
+        logger.error(f"Error in cleanup_session: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "detail": "Error interno al procesar la solicitud."},
+        )
 
 # Simple In-Memory Rate Limiter (Fallback Anti-DDoS Layer 7)
 RATE_LIMIT = 5  # Max requests
