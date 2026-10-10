@@ -10,7 +10,7 @@ const app = createApp({
         const apiKey = ref('');
         const showApiKeyModal = ref(false);
         const prompt = ref('');
-        const MAX_PROMPT_CHARS = 550;
+        const MAX_PROMPT_CHARS = ref(550);
         const imageBase64 = ref(null);
         const imagePreview = ref(null);
         const ttsVoice = ref('auto');
@@ -52,7 +52,7 @@ const app = createApp({
 
         const toggleEdgeTts = () => { useEdgeTts.value = !useEdgeTts.value; };
         
-        const isPromptOverLimit = computed(() => (prompt.value?.length || 0) > MAX_PROMPT_CHARS);
+        const isPromptOverLimit = computed(() => (prompt.value?.length || 0) > MAX_PROMPT_CHARS.value);
         const canGenerate = computed(() => {
             if (loading.value) return false;
             const hasText = !!(prompt.value && prompt.value.trim().length > 0);

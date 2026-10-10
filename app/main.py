@@ -103,7 +103,15 @@ from fastapi.responses import FileResponse, StreamingResponse
 async def serve_ui():
     index_path = os.path.join(static_path, "index.html")
     with open(index_path, "r", encoding="utf-8") as f:
-        return f.read()
+        content = f.read()
+    return HTMLResponse(
+        content=content,
+        headers={
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+    )
 
 @app.get("/favicon.ico")
 async def favicon():
