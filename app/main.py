@@ -236,7 +236,7 @@ ALLOWED_MODELS = {
 # --- Input size limits (Fix #4) ---
 MAX_BODY_BYTES = 6 * 1024 * 1024   # 6 MB for the whole JSON body
 MAX_IMAGE_B64_CHARS = 5_000_000    # ~3.7 MB decoded image (the frontend downscales before sending)
-MAX_PROMPT_CHARS = 4_000
+MAX_PROMPT_CHARS = 550
 MAX_API_KEY_CHARS = 256
 MAX_SHORT_FIELD_CHARS = 64         # voice, edge_voice, selected_model
 
@@ -302,6 +302,9 @@ async def run_exercise(req: Request):
     edge_voice = get_str_field(body, "edge_voice", MAX_SHORT_FIELD_CHARS)
     image_b64 = get_str_field(body, "image", MAX_IMAGE_B64_CHARS)
     selected_model = get_str_field(body, "selected_model", MAX_SHORT_FIELD_CHARS) or "auto"
+
+    if not prompt.strip() and not image_b64:
+        raise HTTPException(status_code=400, detail="Debes ingresar un ejercicio o adjuntar una imagen.")
 
     # Fix #2: only allow known models (prevents arbitrary/expensive models on the server key)
     if not isinstance(selected_model, str) or selected_model not in ALLOWED_MODELS:

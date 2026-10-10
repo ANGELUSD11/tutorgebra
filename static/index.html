@@ -101,9 +101,19 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">What do you want to calculate or draw?</label>
-                        <textarea v-model="prompt" maxlength="4000" rows="3" placeholder="Ex: Draw a right triangle and its circumscribed circle." 
-                                  class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"></textarea>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">What do you want to calculate or draw?</label>
+                            <span :class="{'text-red-500 font-bold': isPromptOverLimit, 'text-gray-400 dark:text-gray-500': !isPromptOverLimit}" class="text-xs transition-colors">
+                                {{ (prompt?.length || 0) }} / {{ MAX_PROMPT_CHARS }}
+                            </span>
+                        </div>
+                        <textarea v-model="prompt" rows="3" placeholder="Ex: Draw a right triangle and its circumscribed circle." 
+                                  :class="{'border-red-500 dark:border-red-500 focus:ring-red-500 focus:border-red-500': isPromptOverLimit, 'border-gray-300 dark:border-gray-600 focus:ring-primary-500 focus:border-primary-500': !isPromptOverLimit}"
+                                  class="w-full p-3 rounded-lg border dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:ring-2 transition-colors resize-none"></textarea>
+                        
+                        <p v-if="isPromptOverLimit" class="text-xs text-red-500 dark:text-red-400 mt-1 font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-circle-exclamation"></i> You have exceeded the maximum limit of {{ MAX_PROMPT_CHARS }} characters. Please shorten your text to continue.
+                        </p>
                         
                         <example-carousel @select="(t) => prompt = t"></example-carousel>
                         
@@ -142,7 +152,7 @@
                         <custom-select v-model="selectedModel" :options="modelOptions"></custom-select>
                     </div>
 
-                    <button @click="startTutor" :disabled="loading || !prompt" 
+                    <button @click="startTutor" :disabled="!canGenerate" 
                             class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i v-if="loading" class="fa-solid fa-circle-notch fa-spin"></i>
                         <i v-else class="fa-solid fa-chalkboard-user"></i>

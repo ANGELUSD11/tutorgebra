@@ -3,13 +3,14 @@ import ExampleCarousel from './components/ExampleCarousel.js';
 import CustomSelect from './components/CustomSelect.js';
 import MiniAlert from './components/MiniAlert.js';
 
-const { createApp, ref, watch } = window.Vue;
+const { createApp, ref, computed, watch } = window.Vue;
 
 const app = createApp({
     setup() {
         const apiKey = ref('');
         const showApiKeyModal = ref(false);
         const prompt = ref('');
+        const MAX_PROMPT_CHARS = 550;
         const imageBase64 = ref(null);
         const imagePreview = ref(null);
         const ttsVoice = ref('auto');
@@ -50,6 +51,17 @@ const app = createApp({
         ];
 
         const toggleEdgeTts = () => { useEdgeTts.value = !useEdgeTts.value; };
+        
+        const isPromptOverLimit = computed(() => (prompt.value?.length || 0) > MAX_PROMPT_CHARS);
+        const canGenerate = computed(() => {
+            if (loading.value) return false;
+            const hasText = !!(prompt.value && prompt.value.trim().length > 0);
+            const hasImage = !!imageBase64.value;
+            if (!hasText && !hasImage) return false;
+            if (isPromptOverLimit.value) return false;
+            return true;
+        });
+
         const loading = ref(false);
         const loadingMessage = ref('Iniciando...');
         const loadingPercent = ref(0);
@@ -430,6 +442,7 @@ const app = createApp({
             imageBase64, imagePreview, handleImageUpload, removeImage,
             useEdgeTts, edgeVoice, toggleEdgeTts, selectedModel,
             gttsOptions, edgeTtsOptions, modelOptions,
+            MAX_PROMPT_CHARS, isPromptOverLimit, canGenerate,
             loading, loadingMessage, loadingPercent, error, steps, meta, startTutor,
             appletLoaded, isPlaying, currentStep, togglePlay, resetLesson, nextStep,
             isFullscreen, toggleFullscreen, currentTypedText, volume
