@@ -7,6 +7,19 @@ from openrouter import OpenRouter
 
 logger = logging.getLogger('TutorGebraAgent')
 
+def sanitize_geogebra_command(cmd: str) -> str:
+    """Fix syntax errors in GeoGebra commands, such as double equals in equation naming."""
+    if not cmd or not isinstance(cmd, str):
+        return ""
+    cmd = cmd.strip()
+    # GeoGebra equation syntax: equations (lines, conics, curves) MUST use a colon ':' to assign a label,
+    # NOT double equals like 'line1 = y = x - 1' or 'circ1 = x^2 + y^2 = 16'.
+    m = re.match(r'^([a-zA-Z][a-zA-Z0-9]*)\s*=\s*([^=]+=.+)$', cmd)
+    if m:
+        return f"{m.group(1)}: {m.group(2)}"
+    return cmd
+
+
 def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = None, selected_model: str = "auto") -> dict:
     final_api_key = api_key.strip() if api_key else os.environ.get("OPENROUTER_API_KEY")
     if not final_api_key:
@@ -140,6 +153,10 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                     }
             
             data = json.loads(clean_content)
+            if "steps" in data and isinstance(data["steps"], list):
+                for step in data["steps"]:
+                    if isinstance(step, dict) and "command" in step:
+                        step["command"] = sanitize_geogebra_command(step.get("command", ""))
             data["_meta"] = {
                 "difficulty": locals().get("difficulty", "basic"),
                 "model": response.model

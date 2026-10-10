@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from app.agent import generate_geogebra_script
+from app.agent import generate_geogebra_script, sanitize_geogebra_command
 from app.bot import pregenerate_audio
 
 # Load environment variables from .env file for local development
@@ -343,7 +343,8 @@ async def run_exercise(req: Request):
             steps = []
             for s in raw_steps:
                 if isinstance(s, dict):
-                    steps.append(s)
+                    cmd = sanitize_geogebra_command(s.get("command", ""))
+                    steps.append({"command": cmd, "speech": s.get("speech", "")})
                 elif isinstance(s, str):
                     steps.append({"command": "", "speech": s})
                     

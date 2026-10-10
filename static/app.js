@@ -354,6 +354,17 @@ const app = createApp({
             typeChar();
         };
 
+        const executeGgbCommand = (rawCmd) => {
+            if (!ggbAppletInstance || !rawCmd || rawCmd.trim() === '') return;
+            let cmd = rawCmd.trim();
+            // GeoGebra requires colons for equation labels (e.g., "line1: y = x - 1"), not "line1 = y = x - 1"
+            const doubleEqualsMatch = cmd.match(/^([a-zA-Z][a-zA-Z0-9]*)\s*=\s*([^=]+=.+)$/);
+            if (doubleEqualsMatch) {
+                cmd = `${doubleEqualsMatch[1]}: ${doubleEqualsMatch[2]}`;
+            }
+            ggbAppletInstance.evalCommand(cmd);
+        };
+
         const playCurrentStep = () => {
             if (currentStep.value >= steps.value.length) {
                 isPlaying.value = false;
@@ -367,9 +378,7 @@ const app = createApp({
                 if (!isPlaying.value) return;
                 
                 // Al terminar de escribir, inyectarlo en GeoGebra
-                if (ggbAppletInstance && step.command && step.command.trim() !== '') {
-                    ggbAppletInstance.evalCommand(step.command);
-                }
+                executeGgbCommand(step.command);
                 
                 // Reproducir el audio inmediatamente después de inyectar el gráfico
                 if (step.audio_url) {
@@ -432,7 +441,7 @@ const app = createApp({
             pauseLesson();
             if (currentStep.value < steps.value.length) {
                 const step = steps.value[currentStep.value];
-                if (ggbAppletInstance) ggbAppletInstance.evalCommand(step.command);
+                executeGgbCommand(step.command);
                 currentStep.value++;
             }
         };
