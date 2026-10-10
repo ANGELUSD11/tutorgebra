@@ -175,6 +175,24 @@ def check_rate_limit_memory(client_ip: str):
         
     ip_requests[client_ip].append(now)
 
+# Allowlists (must mirror the options offered in static/app.js).
+# gTTS voices map to a fixed (lang, tld) pair: the tld is interpolated by gTTS into
+# "https://translate.google.{tld}/...", so it must never come from user input (SSRF).
+ALLOWED_GTTS_VOICES = {
+    "es-es": ("es", "es"),
+    "es-com.mx": ("es", "com.mx"),
+    "en-us": ("en", "us"),
+    "en-co.uk": ("en", "co.uk"),
+}
+
+# Models billed to the server's OPENROUTER_API_KEY; anything else is rejected (cost abuse).
+ALLOWED_MODELS = {
+    "auto",
+    "openai/gpt-4o",
+    "openai/gpt-4o-mini",
+    "anthropic/claude-sonnet-5.5",
+}
+
 @app.post("/api/run")
 async def run_exercise(req: Request):
     # Get real user IP (supporting reverse proxies like Railway/Cloudflare)
@@ -199,7 +217,20 @@ async def run_exercise(req: Request):
     voice = body.get("voice", "auto")
     edge_voice = body.get("edge_voice")
     image_b64 = body.get("image")
-    selected_model = body.get("selected_model", "auto")
+    selected_model = body.get("selected_model") or "auto"
+
+    # Fix #2: only allow known models (prevents arbitrary/expensive models on the server key)
+    if not isinstance(selected_model, str) or selected_model not in ALLOWED_MODELS:
+        logger.warning(f"Rejected unsupported model from IP {client_ip}: {selected_model!r:.100}")
+        raise HTTPException(status_code=400, detail="Modelo no soportado.")
+
+    # Fix #1: resolve gTTS (lang, tld) strictly from the allowlist (prevents SSRF via tld)
+    gtts_override = None
+    if voice and voice != "auto":
+        if not isinstance(voice, str) or voice not in ALLOWED_GTTS_VOICES:
+            logger.warning(f"Rejected unsupported voice from IP {client_ip}: {voice!r:.100}")
+            raise HTTPException(status_code=400, detail="Voz no soportada.")
+        gtts_override = ALLOWED_GTTS_VOICES[voice]
         
     async def event_stream():
         try:
@@ -224,11 +255,9 @@ async def run_exercise(req: Request):
             lang = data.get("language", "en")
             tld = "com"
             
-            if voice and voice != "auto":
-                parts = voice.split('-')
-                if len(parts) == 2:
-                    lang = parts[0]
-                    tld = parts[1]
+            # lang/tld come only from the server-side allowlist, never from raw user text
+            if gtts_override:
+                lang, tld = gtts_override
                     
             yield f"data: {json.dumps({'status': 'progress', 'message': f'Lesson generated ({len(steps)} steps). Synthesizing teacher voice...', 'percent': 30})}\n\n"
             
