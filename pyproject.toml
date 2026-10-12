@@ -2,22 +2,17 @@
 name = "tutorgebra"
 version = "0.1.0"
 description = "Your automated interactive geometry tutor."
-readme = "README.md"
+readme = "docs/README.md"
 authors = [
     { name = "ANGELUSD11", email = "angelleonardohern3@gmail.com" }
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi",
-    "uvicorn",
-    "gTTS",
-    "google-genai",
-    "edge-tts",
+    "fastapi==0.141.1",
+    "uvicorn==0.54.0",
+    "gTTS==2.5.4",
+    "openrouter==1.3.22",
+    "python-dotenv==1.2.4",
+    "edge-tts==7.2.8",
+    "redis==8.1.0",
 ]
-
-[project.scripts]
-tutorgebra = "tutorgebra:main"
-
-[build-system]
-requires = ["uv_build>=0.12.18,<0.13.0"]
-build-backend = "uv_build"

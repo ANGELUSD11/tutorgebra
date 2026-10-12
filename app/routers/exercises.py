@@ -1,7 +1,6 @@
 import asyncio
 import json
 import logging
-import traceback
 import uuid
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse
@@ -12,6 +11,7 @@ from app.security import (
     read_json_body,
     get_str_field,
     ALLOWED_GTTS_VOICES,
+    ALLOWED_EDGE_VOICES,
     ALLOWED_MODELS,
     MAX_BODY_BYTES,
     MAX_IMAGE_B64_CHARS,
@@ -72,7 +72,12 @@ async def run_exercise(req: Request):
             logger.warning(f"Rejected unsupported voice from IP {client_ip}: {voice!r:.100}")
             raise HTTPException(status_code=400, detail="Voz no soportada.")
         gtts_override = ALLOWED_GTTS_VOICES[voice]
-        
+
+    # Fix #3: only allow the Edge TTS voices offered by the UI (prevents SSML injection)
+    if edge_voice and edge_voice not in ALLOWED_EDGE_VOICES:
+        logger.warning(f"Rejected unsupported edge voice from IP {client_ip}: {edge_voice!r:.100}")
+        raise HTTPException(status_code=400, detail="Voz no soportada.")
+
     async def event_stream():
         try:
             yield f"data: {json.dumps({'status': 'progress', 'message': 'Thinking about the mathematical solution...', 'percent': 10})}\n\n"
@@ -135,11 +140,11 @@ async def run_exercise(req: Request):
             
             if not await req.is_disconnected():
                 yield f"data: {json.dumps({'status': 'done', 'steps': steps, 'session_id': session_id, 'meta': data.get('_meta', {})})}\n\n"
-        except Exception as e:
-            logger.error("Critical error in bot execution:")
-            logger.error(traceback.format_exc())
+        except Exception:
+            # Log the real error (with traceback) server-side, return a generic message to the client
+            logger.exception(f"Critical error in bot execution for IP {client_ip}")
             if not await req.is_disconnected():
-                yield f"data: {json.dumps({'status': 'error', 'detail': str(e)})}\n\n"
+                yield f"data: {json.dumps({'status': 'error', 'detail': 'No se pudo generar la lección. Inténtalo de nuevo en unos minutos.'})}\n\n"
 
     return StreamingResponse(event_stream(), media_type="text/event-stream")
 

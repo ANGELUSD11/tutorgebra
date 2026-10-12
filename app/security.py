@@ -74,6 +74,17 @@ ALLOWED_GTTS_VOICES = {
     "en-co.uk": ("en", "co.uk"),
 }
 
+# Edge TTS voices offered by the UI. edge-tts interpolates the voice name into the SSML
+# it sends to Microsoft without escaping it, so it must never come from raw user input.
+ALLOWED_EDGE_VOICES = {
+    "es-MX-JorgeNeural",
+    "es-MX-DaliaNeural",
+    "es-ES-AlvaroNeural",
+    "es-ES-ElviraNeural",
+    "en-US-GuyNeural",
+    "en-US-JennyNeural",
+}
+
 # Models billed to the server's OPENROUTER_API_KEY; anything else is rejected (cost abuse).
 ALLOWED_MODELS = {
     "auto",
