@@ -96,7 +96,7 @@ ALLOWED_MODELS = {
 # --- Input size limits ---
 MAX_BODY_BYTES = 6 * 1024 * 1024   # 6 MB for the whole JSON body
 MAX_IMAGE_B64_CHARS = 5_000_000    # ~3.7 MB decoded image (the frontend downscales before sending)
-MAX_PROMPT_CHARS = 550
+MAX_PROMPT_CHARS = 1000
 MAX_API_KEY_CHARS = 256
 MAX_SHORT_FIELD_CHARS = 64         # voice, edge_voice, selected_model
 

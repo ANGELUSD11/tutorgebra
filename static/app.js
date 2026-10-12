@@ -10,7 +10,8 @@ const app = createApp({
         const apiKey = ref('');
         const showApiKeyModal = ref(false);
         const prompt = ref('');
-        const MAX_PROMPT_CHARS = ref(550);
+        // Injected by the server in GET / from MAX_PROMPT_CHARS in app/security.py
+        const MAX_PROMPT_CHARS = ref(window.TUTOR_CONFIG.maxPromptChars);
         const imageBase64 = ref(null);
         const imagePreview = ref(null);
         const ttsVoice = ref('auto');

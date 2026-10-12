@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import shutil
@@ -15,7 +16,7 @@ from dotenv import load_dotenv
 
 from app.config import STATIC_PATH, AUDIOS_PATH, IS_PRODUCTION
 from app.redis_rate_limit import init_redis, close_redis
-from app.security import sweep_rate_limit_memory
+from app.security import sweep_rate_limit_memory, MAX_PROMPT_CHARS
 from app.routers import exercises, sessions
 
 # Load environment variables from .env file for local development
@@ -112,6 +113,9 @@ async def serve_ui():
     index_path = os.path.join(STATIC_PATH, "index.html")
     with open(index_path, "r", encoding="utf-8") as f:
         content = f.read()
+    # Single source of truth for limits shared with the frontend (see app/security.py)
+    client_config = json.dumps({"maxPromptChars": MAX_PROMPT_CHARS})
+    content = content.replace("</head>", f"<script>window.TUTOR_CONFIG = {client_config};</script>\n</head>", 1)
     return HTMLResponse(
         content=content,
         headers={
