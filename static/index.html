@@ -169,9 +169,7 @@
                         </div>
                     </div>
                     
-                    <div v-if="error" class="mt-4 p-3 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm border border-red-200 dark:border-red-800">
-                        <i class="fa-solid fa-triangle-exclamation mr-2"></i> {{ error }}
-                    </div>
+                    <errors v-if="error" :message="error"></errors>
 
                     <!-- Meta Information Badge -->
                     <div v-if="meta.model" class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-lg text-xs font-medium border border-blue-200 dark:border-blue-800 flex justify-between items-center transition-all">
@@ -215,6 +213,7 @@
                                       idx < currentStep ? 'bg-gray-50 border-gray-200 dark:bg-gray-700/30 dark:border-gray-600 opacity-60' : 'bg-white border-gray-100 dark:bg-gray-800 dark:border-gray-700 opacity-40']">
                             <code class="font-mono text-pink-600 dark:text-pink-400">{{ step.command }}</code>
                             <p class="text-gray-600 dark:text-gray-400 mt-1 italic leading-tight">"{{ step.speech }}"</p>
+                            <errors v-if="step.audio_error && idx <= currentStep" variant="warning" compact :message="step.audio_error"></errors>
                         </div>
                     </div>
                 </div>
@@ -304,6 +303,6 @@
         </transition>
     </div>
 
-    <script type="module" src="/static/app.js?v=6"></script>
+    <script type="module" src="/static/app.js?v=7"></script>
 </body>
 </html>

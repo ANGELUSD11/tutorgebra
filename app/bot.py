@@ -42,6 +42,15 @@ def _generate_single_audio(step, lang, tld, session_id, step_index=0):
         
     return step
 
+def _edge_error_message(error: Exception) -> str:
+    status = getattr(error, "status", None)
+    reason = f"rejected the request (HTTP {status})" if status else "could not generate the voice, the edge-tts library may be outdated or the service is down"
+    return (
+        f"No audio for this step: Microsoft's Edge TTS service {reason}. "
+        "This is an issue with the Edge TTS service, not with your lesson. "
+        "Switch to \"Basic Voices (gTTS)\" to hear the explanations."
+    )
+
 async def _generate_single_edge_audio(step, voice, session_id, step_index=0):
     cmd = step.get("command", "")
     text = step.get("speech", "")
@@ -63,6 +72,7 @@ async def _generate_single_edge_audio(step, voice, session_id, step_index=0):
                 await communicate.save(filepath)
         except Exception as e:
             logger.error(f"Error generating Edge TTS for '{cmd}': {e}")
+            step["audio_error"] = _edge_error_message(e)
             
     if os.path.exists(filepath):
         import base64
