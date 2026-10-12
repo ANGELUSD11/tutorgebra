@@ -82,7 +82,8 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 
 **5. Functions, Calculus, and Vectors**
 * **FUNCTIONS (CRITICAL):** Define functions natively: `funcF(x) = x^3 - 3*x`.
-* **ROOTS AND ASYMPTOTES (CRITICAL):** `Root(funcF)`, `Asymptote(funcF)`.
+* **ROOTS (CRITICAL):** `Root(funcF)`.
+* **ASYMPTOTES (FATAL ERROR):** `asympList = Asymptote(funcF)` returns ONE list that already contains ALL the asymptotes of the function (vertical, horizontal and oblique). Call it ONLY ONCE per function. The commands `VerticalAsymptote`, `HorizontalAsymptote` and `ObliqueAsymptote` DO NOT EXIST. To draw them dotted, style the whole list: `SetLineStyle(asympList, 3)`.
 * **VERTICES OF FUNCTIONS (CRITICAL):** NEVER calculate the vertex manually (no `-b/(2a)`). Use `Extremum(funcF)` alone on a line to plot it. 
 * **TUPLE EXTRACTION (FATAL SYNTAX WARNING):** Like `Focus()`, `Extremum()` returns an un-indexable Tuple. You CANNOT use `Element(Extremum(funcF), 1)` and you CANNOT assign it to a variable. Just write `Extremum(funcF)`. If the user asks you to label or connect the extremum, you must politely ignore that part of the request because extracting points from a Tuple dynamically is impossible in GeoGebra.
 * **CALCULUS (CRITICAL):** `Derivative(funcF)`, `Integral(funcF, 0, 2)`. 

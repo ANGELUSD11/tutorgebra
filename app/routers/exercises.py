@@ -110,8 +110,9 @@ async def run_exercise(req: Request):
             
             tasks = []
             if edge_voice:
+                edge_state = {}  # shared by this request's steps: stops calling Edge after a 403
                 for i, step in enumerate(steps):
-                    tasks.append(_generate_single_edge_audio(step, edge_voice, session_id, i))
+                    tasks.append(_generate_single_edge_audio(step, edge_voice, session_id, i, edge_state))
             else:
                 async def bounded_gtts_audio(s, lang, tld, sid, idx):
                     async with global_tts_semaphore:

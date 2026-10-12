@@ -5,6 +5,8 @@ import logging
 import base64
 from openrouter import OpenRouter
 
+from app.geogebra_commands import find_unknown_commands, build_retry_note, blank_unknown_commands
+
 logger = logging.getLogger('TutorGebraAgent')
 
 def sanitize_geogebra_command(cmd: str) -> str:
@@ -157,6 +159,18 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                 for step in data["steps"]:
                     if isinstance(step, dict) and "command" in step:
                         step["command"] = sanitize_geogebra_command(step.get("command", ""))
+
+                unknown = find_unknown_commands(data["steps"])
+                if unknown:
+                    logger.warning(f"Attempt {attempt + 1} used nonexistent GeoGebra commands: {unknown}")
+                    if attempt < max_retries - 1:
+                        # Discard this lesson and ask again from scratch, telling the model what was wrong
+                        messages = [
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_content + [{"type": "text", "text": build_retry_note(unknown)}]},
+                        ]
+                        continue
+                    blank_unknown_commands(data["steps"], unknown)
             data["_meta"] = {
                 "difficulty": locals().get("difficulty", "basic"),
                 "model": response.model

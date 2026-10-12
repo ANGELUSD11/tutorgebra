@@ -51,12 +51,16 @@ def _edge_error_message(error: Exception) -> str:
         "Switch to \"Basic Voices (gTTS)\" to hear the explanations."
     )
 
-async def _generate_single_edge_audio(step, voice, session_id, step_index=0):
+async def _generate_single_edge_audio(step, voice, session_id, step_index=0, edge_state=None):
+    # edge_state is shared by all the steps of one request: once Microsoft answers 403,
+    # the remaining steps skip the call instead of failing one by one
+    if edge_state is None:
+        edge_state = {}
     cmd = step.get("command", "")
     text = step.get("speech", "")
     if not text:
         return step
-        
+
     safe_name = "".join(c if c.isalnum() else "_" for c in cmd)[:30]
     filename = f"{step_index}_{safe_name}.mp3"
     
@@ -68,13 +72,26 @@ async def _generate_single_edge_audio(step, voice, session_id, step_index=0):
     if not os.path.exists(filepath):
         try:
             async with global_tts_semaphore:
+                if edge_state.get("blocked"):
+                    step["audio_error"] = edge_state["message"]
+                    return step
                 communicate = edge_tts.Communicate(text, voice)
                 await communicate.save(filepath)
         except Exception as e:
             logger.error(f"Error generating Edge TTS for '{cmd}': {e}")
             step["audio_error"] = _edge_error_message(e)
-            
-    if os.path.exists(filepath):
+            if getattr(e, "status", None) == 403:
+                edge_state["blocked"] = True
+                edge_state["message"] = step["audio_error"]
+            # edge-tts leaves an empty file behind when the request is rejected
+            try:
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+            except OSError:
+                pass
+            return step
+
+    if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
         import base64
         with open(filepath, "rb") as f:
             b64_data = base64.b64encode(f.read()).decode("utf-8")
@@ -83,7 +100,7 @@ async def _generate_single_edge_audio(step, voice, session_id, step_index=0):
             os.remove(filepath)
         except:
             pass
-        
+
     return step
 
 def pregenerate_audio(steps, lang="en", tld="com", session_id="default"):
