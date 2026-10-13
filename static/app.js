@@ -175,6 +175,9 @@ const app = createApp({
                 "showAlgebraInput": true,
                 "showMenuBar": false,
                 "language": "en", // GeoGebra API language
+                // GeoGebra preloads every command module except "discrete" (ConvexHull, Voronoi...),
+                // whose commands fail with "Discrete commands not loaded yet". No spaces in the list.
+                "preloadModules": "advanced,prover,scripting,stats,cas,spatial,discrete",
                 "appletOnLoad": (api) => {
                     ggbAppletInstance = api;
                     appletLoaded.value = true;

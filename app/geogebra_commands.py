@@ -36,6 +36,9 @@ VALID_COMMANDS = frozenset({
     "Sequence", "Element", "First", "Last", "Take", "Append", "Join", "Flatten", "Reverse",
     "Sort", "Unique", "Zip", "KeepIf", "RemoveUndefined", "IndexOf", "Count", "CountIf",
     "Sum", "Product", "Min", "Max", "Locus", "LocusEquation",
+    # Discrete math (needs "discrete" in the applet's preloadModules, see static/app.js)
+    "ConvexHull", "Voronoi", "DelaunayTriangulation", "MinimumSpanningTree",
+    "ShortestDistance", "TravelingSalesman",
     # Numbers
     "Mod", "Div", "GCD", "LCM", "RandomBetween", "RandomElement", "RandomUniform",
     "RandomNormal", "ToPoint", "ToComplex", "ToPolar",
