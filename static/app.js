@@ -1,3 +1,4 @@
+import AsciiWaves from './components/AsciiWaves.js';
 import FloatingBackground from './components/FloatingBackground.js';
 import ExampleCarousel from './components/ExampleCarousel.js';
 import CustomSelect from './components/CustomSelect.js';
@@ -464,6 +465,7 @@ const app = createApp({
     }
 });
 
+app.component('ascii-waves', AsciiWaves);
 app.component('floating-background', FloatingBackground);
 app.component('example-carousel', ExampleCarousel);
 app.component('custom-select', CustomSelect);
