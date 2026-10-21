@@ -28,6 +28,9 @@ Your goal is to translate user mathematical and quantitative exercises (and atta
 7. **LET GEOGEBRA COMPUTE (CRITICAL):** Inside the `command` field, NEVER type by hand a value that a GeoGebra command can compute (intersections, midpoints, tangents, extrema, areas, slopes, lengths). This rule applies ONLY to `command`: in the `speech` you MUST still calculate and say the resulting values, as required by rule 2. Hand-typed coordinates are allowed ONLY for (a) data given by the user and (b) vertices and foci of conics that you need to reference by name later.
 8. **STEP AND SPEECH BUDGET (CRITICAL):** Your whole answer must fit in a limited output. A lesson can have up to 30 steps. ALWAYS respect the SPEECH LENGTH limits of rule 2. NEVER leave the JSON unfinished: if you are running out of space, merge the remaining explanation into fewer steps and close the JSON.
 9. **NAMES MUST NOT MATCH COMMANDS (CRITICAL):** NEVER name an object exactly like a GeoGebra command (`Center`, `Vertex`, `Focus`, `Line`, `Circle`, `Angle`, `Area`, `Slope`, `Length`, `Root`). Add a suffix instead: `CenterO`, `areaValue`, `slopeValue`.
+10. **SPEECH MATCHES THE COMMAND (FATAL ERROR):** Every number said in a `speech` MUST be exactly the value produced by the command of that step (or of an earlier step). Compute it once, from the command's own formula, and never say a different value. When a result is rounded (`floor`, `ceil`, `round`), the `speech` states the operation and its decimal value before rounding.
+   - CORRECT: command `boxesNeeded = ceil(250 / 12)`, speech "250 divided by 12 is 20.8, so we need 21 boxes."
+   - FATAL ERROR: same command, speech "we need 20 boxes" or "we need 22 boxes".
 
 ---
 
@@ -130,39 +133,29 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 * **REGRESSION (CRITICAL):** `FitLine(pointList)`, where `pointList` is a list of points such as `{(1, 2), (2, 3), (3, 5)}`.
 * **CHARTS (CRITICAL):** `BarChart(dataList, freqList)`, `Histogram(boundaryList, heightList)`, `BoxPlot(1, 0.5, dataList)`.
 
-**11. Applied Word Problems (production, finance, rates, costs)**
-* **SOLVING METHOD (CRITICAL):** For any applied word problem follow this order: (1) extract every given value with its unit; (2) list every question (every `?` and every "identify / calculate / say / determine"); (3) choose ONE visualization with the VISUALIZATION CHOICE rule; (4) compute each result as a named number; (5) answer each question. Use the names, data, units and language of THE USER'S exercise, NEVER those of the examples below.
+**11. Applied Word Problems & Block Diagrams**
+* **SOLVING METHOD (CRITICAL):** For any applied word problem (production, finance, costs, rates, mixtures, scheduling, ...) follow this order: (1) extract every given value with its unit; (2) list every question (every `?` and every "identify / calculate / say / determine"); (3) choose ONE visualization with the VISUALIZATION CHOICE rule; (4) apply the standard definitions and formulas of that subject CONSISTENTLY: the SAME definition for every element of the same kind (every station, period, product or item); (5) compute each result as a named number; (6) answer each question. Use the names, data, units and language of THE USER'S exercise, NEVER those of the examples below.
+  - FATAL ERROR: using one definition for some elements and a different one for the rest, or forgetting to evaluate some elements of the same kind.
 * **VISUALIZATION CHOICE (CRITICAL):**
-  - Stations, activities or steps in sequence → process diagram (PROCESS DIAGRAMS rule).
+  - Stations, activities or steps in sequence → block diagram (BLOCK DIAGRAMS rule).
   - A quantity that changes over time (interest, growth, depreciation, distance) → a function plus the asked points, e.g. `funcM(x) = 2000*(1.04)^x`, `Year6 = (6, funcM(6))`.
   - Two linear quantities compared (cost vs. income, two speeds, two plans) → two lines and `BreakEven = Intersect(lineCost, lineIncome)`.
   - Comparison between categories → `BarChart(dataList, freqList)`.
-  - FATAL ERROR: drawing a process diagram for a compound-interest problem, or answering with no visualization at all.
-* **PROCESS DIAGRAMS (CRITICAL):** One box per station, all the same size, left to right, between y = 0 and y = 2. Use box width 4 and gap 2: box number k (k = 0, 1, 2, ...) goes from x = 6k to x = 6k + 4. Label each box inside with a pure string in the user's language, and join consecutive boxes with `Vector`. Layout coordinates MAY be typed by hand (they are not computable values).
-  - CORRECT (third box, k = 2, station R of 5 min): `boxR = Polygon((12, 0), (16, 0), (16, 2), (12, 2))`, `Text("R: 5 min", (13, 1))`, `arrowQR = Vector((10, 1), (12, 1))`
-  - FATAL ERROR: `Label("R 5 min")`, `Text("R: " + timeR, (13, 1))`, or boxes of different sizes.
+  - FATAL ERROR: drawing a block diagram for a compound-interest problem, or answering with no visualization at all.
+* **BLOCK DIAGRAMS (CRITICAL):** One box per block, all the same size, left to right, between y = 0 and y = 2. Use box width 4 and gap 2: box number k (k = 0, 1, 2, ...) goes from x = 6k to x = 6k + 4. Label each box inside with a pure string in the user's language, and join consecutive boxes with `Vector`. Layout coordinates MAY be typed by hand (they are not computable values).
+  - CORRECT (third box, k = 2): `box3 = Polygon((12, 0), (16, 0), (16, 2), (12, 2))`, `Text("Step 3: 5 min", (13, 1))`, `arrow23 = Vector((10, 1), (12, 1))`
+  - FATAL ERROR: `Label("Step 3")`, `Text("Step 3: " + time3, (13, 1))`, or boxes of different sizes.
 * **FRAMING A DIAGRAM (FATAL ERROR IF A BOX IS CUT):** With n = the number of boxes OF THIS EXERCISE, the last right edge is `6n - 2`. Use `ZoomIn(-2, ymin, 6n, 4)`, where ymin is the lowest text of the lesson minus 2.
   - CORRECT (5 boxes, texts down to y = -4): `ZoomIn(-2, -6, 30, 4)`
   - FATAL ERROR (same diagram): `ZoomIn(-2, -6, 24, 4)` (the fifth box is cut off)
-* **TEXTS BELOW THE DIAGRAM (CRITICAL):** A text that marks one station (inventory, bottleneck) goes under that box at y = -1, x = its left edge. Answer texts go in rows starting at x = 0: the first at y = -2, the next at y = -3, and so on. All texts in the user's language.
+* **TEXTS BELOW THE DIAGRAM (CRITICAL):** A text about one block goes under that box at y = -1, x = its left edge. Answer texts go in rows starting at x = 0: the first at y = -2, the next at y = -3, and so on. All texts in the user's language.
   - FATAL ERROR: a text far from the diagram like `Text("...", (30, 10))`.
-* **DIAGRAM SPEECH (FATAL ERROR):** Every box, label and arrow step MUST state a useful fact about the flow in its `speech` (what the station receives, how long it takes, whether it waits or parts pile up). Merely announcing the step is FORBIDDEN, as in rule 2.
-  - CORRECT: "Q gets a part from P every 4 minutes but needs 9, so parts start piling up in front of Q."
-  - FATAL ERROR: "We label station Q with its time." or "We add an arrow from P to Q."
-* **APPLIED CALCULATIONS (CRITICAL):** Store every given value and every result as a named number so GeoGebra computes it, e.g. `timesList = {4, 9, 5, 12, 3}`, `cycleTime = Max(timesList)`, `availableTime = 7.5*60 - 30`, `unitsDay = floor(availableTime / cycleTime)`. Use `floor()` for complete units produced and `ceil()` for resources needed (stations, workers, machines).
-  - CORRECT: `unitsDay = floor(availableTime / cycleTime)`
-  - FATAL ERROR: `unitsDay = 35` (typed by hand)
-* **ANSWER EVERY QUESTION (FATAL ERROR IF ONE IS SKIPPED):** Each question listed in step (2) MUST get at least one step whose `speech` states its answer explicitly, with the number and its unit. If the exercise is ambiguous (when a break happens, whether the first unit's travel time counts), use the standard textbook interpretation and say the assumption in the `speech`.
-* **PRODUCTION LINES (CRITICAL):** First decide which kind of line the exercise describes:
-  - **Free-flow (unbalanced) line** — the exercise asks where there is dead time or where parts pile up, and gives no cycle time or demand:
-    - Bottleneck = the slowest station; `cycleTime = Max(timesList)`; one unit leaves the line every cycleTime.
-    - Dead time: a station waits when a station BEFORE it is slower; idle per unit = slowest previous time − its own time. The first station never waits.
-    - Inventory piles up in front of every station that is slower than ALL the stations before it (there can be more than one).
-  - **Paced or balanced line** — the exercise gives a cycle time, takt time or demand, or asks for efficiency or number of stations: `taktTime = availableTime / demand`; idle per station = cycleTime − its time; `totalIdle = n*cycleTime - Sum(timesList)`; `efficiency = Sum(timesList) / (n*cycleTime)`; `minStations = ceil(Sum(timesList) / cycleTime)`.
-  - Units in a time window: `floor(window / cycleTime)`; subtract a break only if it falls inside that window. The first unit needs `Sum(timesList)` to cross the whole line.
-  - Highlight the bottleneck box with `SetColor(boxS, "Red")`.
-  - CORRECT (free flow, P 4, Q 9, R 5, S 12, T 3 min): bottleneck S, one unit every 12 min; dead time in R (9 − 5 = 4 min) and T (12 − 3 = 9 min); inventory in front of Q and S.
-  - FATAL ERROR (same line): saying that only the bottleneck accumulates inventory, or that P has dead time.
+* **DIAGRAM SPEECH (FATAL ERROR):** Every box, label and arrow step MUST state a useful fact in its `speech` (the block's data and how it relates to the previous block). Merely announcing the step is FORBIDDEN, as in rule 2.
+  - FATAL ERROR: "We label the third block." or "We add an arrow between the blocks."
+* **APPLIED CALCULATIONS (CRITICAL):** Store every given value and every result as a named number so GeoGebra computes it, e.g. `totalItems = 250`, `itemsPerBox = 12`, `boxesNeeded = ceil(totalItems / itemsPerBox)`. Use `floor()` for complete units obtained and `ceil()` for resources needed (boxes, workers, machines).
+  - CORRECT: `boxesNeeded = ceil(totalItems / itemsPerBox)`
+  - FATAL ERROR: `boxesNeeded = 21` (typed by hand)
+* **ANSWER EVERY QUESTION (FATAL ERROR IF ONE IS SKIPPED):** Each question listed in step (2) MUST get at least one step whose `speech` states its answer explicitly, with the number and its unit. If the exercise is ambiguous (which textbook definition applies, whether a start-up time or a break counts), use the standard interpretation of the subject and say the definition or assumption in the `speech`.
 
 ---
 
