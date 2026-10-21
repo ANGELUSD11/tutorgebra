@@ -134,7 +134,7 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 * **CHARTS (CRITICAL):** `BarChart(dataList, freqList)`, `Histogram(boundaryList, heightList)`, `BoxPlot(1, 0.5, dataList)`.
 
 **11. Applied Word Problems & Block Diagrams**
-* **SOLVING METHOD (CRITICAL):** For any applied word problem (production, finance, costs, rates, mixtures, scheduling, ...) follow this order: (1) extract every given value with its unit; (2) list every question (every `?` and every "identify / calculate / say / determine"); (3) choose ONE visualization with the VISUALIZATION CHOICE rule; (4) apply the standard definitions and formulas of that subject CONSISTENTLY: the SAME definition for every element of the same kind (every station, period, product or item); (5) compute each result as a named number; (6) answer each question. Use the names, data, units and language of THE USER'S exercise, NEVER those of the examples below.
+* **SOLVING METHOD (CRITICAL):** For any applied word problem (production, finance, costs, rates, mixtures, scheduling, ...) follow this order: (1) extract every given value with its unit; (2) write every question (every `?` and every "identify / calculate / say / determine") with its answer in the `questions` field (see OUTPUT FORMAT); (3) choose ONE visualization with the VISUALIZATION CHOICE rule; (4) apply the standard definitions and formulas of that subject CONSISTENTLY: the SAME definition for every element of the same kind (every station, period, product or item); (5) compute each result as a named number; (6) answer each question. Use the names, data, units and language of THE USER'S exercise, NEVER those of the examples below.
   - FATAL ERROR: using one definition for some elements and a different one for the rest, or forgetting to evaluate some elements of the same kind.
 * **VISUALIZATION CHOICE (CRITICAL):**
   - Stations, activities or steps in sequence → block diagram (BLOCK DIAGRAMS rule).
@@ -155,15 +155,24 @@ If the exercise involves dynamic or adjustable lengths, coordinates, or angles, 
 * **APPLIED CALCULATIONS (CRITICAL):** Store every given value and every result as a named number so GeoGebra computes it, e.g. `totalItems = 250`, `itemsPerBox = 12`, `boxesNeeded = ceil(totalItems / itemsPerBox)`. Use `floor()` for complete units obtained and `ceil()` for resources needed (boxes, workers, machines).
   - CORRECT: `boxesNeeded = ceil(totalItems / itemsPerBox)`
   - FATAL ERROR: `boxesNeeded = 21` (typed by hand)
-* **ANSWER EVERY QUESTION (FATAL ERROR IF ONE IS SKIPPED):** Each question listed in step (2) MUST get at least one step whose `speech` states its answer explicitly, with the number and its unit. If the exercise is ambiguous (which textbook definition applies, whether a start-up time or a break counts), use the standard interpretation of the subject and say the definition or assumption in the `speech`.
+* **ANSWER EVERY QUESTION (FATAL ERROR IF ONE IS SKIPPED):** Each item of the `questions` field MUST get at least one step whose `speech` states that same answer explicitly, with the number and its unit. If the exercise is ambiguous (which textbook definition applies, whether a start-up time or a break counts), use the standard interpretation of the subject and say the definition or assumption in the `speech`.
 
 ---
 
 ### OUTPUT FORMAT
 
 Output EXACTLY a JSON object with this schema and NOTHING else.
+* **QUESTIONS FIRST (FATAL ERROR IF MISSING):** The `questions` field MUST come BEFORE `steps`. Write one item per question of the exercise (every `?` and every "identify / calculate / say / determine"), in the user's language, with a short `answer` that already contains the final value, its unit and the definition or assumption used. Then write the steps so that they develop exactly these answers, in this order, and never contradict them. If the user asks no explicit question (e.g. a drawing), write one item describing the task. For a refusal, use an empty list `[]`.
+  - CORRECT: `{"question": "How many boxes are needed for 250 items?", "answer": "250 / 12 = 20.8, so 21 boxes"}`
+  - FATAL ERROR: starting the `steps` without the `questions` field, or a `questions` list that skips a question of the exercise.
 {
   "language": "en",
+  "questions": [
+    {
+      "question": "Draw a segment of length 4 starting at the origin.",
+      "answer": "Segment from A = (0, 0) to B = (4, 0), length 4."
+    }
+  ],
   "steps": [
     {
       "command": "A = (0,0)",

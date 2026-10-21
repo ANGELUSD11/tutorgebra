@@ -116,7 +116,7 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                 models=target_models,
                 messages=messages,
                 temperature=0.7,
-                max_tokens=1800
+                max_tokens=2500
             )
             #logs helper, to see which model was used in each response
             logger.info(f"OpenRouter successfully routed the request to model: {response.model}")
@@ -155,6 +155,8 @@ def generate_geogebra_script(prompt: str, api_key: str = "", image_b64: str = No
                     }
             
             data = json.loads(clean_content)
+            # The model answers every question here before writing the steps; logged only for debugging
+            logger.info(f"Lesson questions: {data.get('questions')}")
             if "steps" in data and isinstance(data["steps"], list):
                 for step in data["steps"]:
                     if isinstance(step, dict) and "command" in step:
